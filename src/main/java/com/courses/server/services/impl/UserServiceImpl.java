@@ -1,6 +1,7 @@
 package com.courses.server.services.impl;
 
 import com.courses.server.dto.request.RegisterDTO;
+import com.courses.server.dto.request.RoleDTO;
 import com.courses.server.dto.response.JwtResponse;
 import com.courses.server.dto.response.UserResponse;
 import com.courses.server.entity.ERole;
@@ -196,5 +197,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getByRegisterToken(String token) {
         return userRepository.findByRegisterToken(token);
+    }
+
+    @Override
+    public void setRole(RoleDTO roleDTO) {
+        String username = roleDTO.getUsername();
+        Set<ERole> roles = roleDTO.getRoles();
+
+        if(!userRepository.existsByUsername(username)){
+            throw new NotFoundException(1002, "username has not existed");
+        }
+
+        User user = userRepository.findByUsername(username);
+
+        Set<Role> rolesNew = new HashSet<>();
+        for(ERole role: roles){
+            Role userRole = roleRepository.findByName(role)
+                    .orElseThrow(() -> new NotFoundException(404, "Error: Role is not found"));
+            rolesNew.add(userRole);
+        }
+
+        user.setRoles(rolesNew);
+        userRepository.save(user);
     }
 }

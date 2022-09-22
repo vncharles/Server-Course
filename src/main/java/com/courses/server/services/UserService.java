@@ -1,6 +1,7 @@
 package com.courses.server.services;
 
 import com.courses.server.dto.request.RegisterDTO;
+import com.courses.server.dto.request.RoleDTO;
 import com.courses.server.dto.response.JwtResponse;
 import com.courses.server.dto.response.UserResponse;
 import com.courses.server.entity.User;
@@ -25,6 +26,8 @@ public interface UserService {
     public void updatePassword(User customer, String newPassword);
 
     public User getByRegisterToken(String token);
+
+    public void setRole(RoleDTO roleDTO);
 
 
 }

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@RequestMapping("/api/oauth2")
 public class AuthSocialController {
     @Autowired
     private GoogleUtils googleUtils;
@@ -51,7 +52,7 @@ public class AuthSocialController {
     @Autowired
     private PasswordEncoder encoder;
 
-    @RequestMapping(value = "/oauth2/google")
+    @RequestMapping(value = "/google")
     public JwtResponse loginGoogle(HttpServletRequest request) throws ClientProtocolException, IOException {
         String code = request.getParameter("code");
         if (code == null || code.isEmpty()) {
