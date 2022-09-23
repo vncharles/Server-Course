@@ -124,12 +124,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void verifyRegister(User user) {
-        if(user.isActive()){
-            throw new BadRequestException(1300, "account has already active");
-        }
-        if(Duration.between(user.getTimeRegisterToken(), LocalDateTime.now()).toMinutes()>5){
-            throw new BadRequestException(1400, "code time out");
-        }
 
         user.setActive(true);
         user.setRegisterToken(null);

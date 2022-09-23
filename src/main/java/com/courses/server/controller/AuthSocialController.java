@@ -23,7 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@RestController
 @RequestMapping("/api/oauth2")
 public class AuthSocialController {
     @Autowired
@@ -52,7 +55,7 @@ public class AuthSocialController {
     @Autowired
     private PasswordEncoder encoder;
 
-    @RequestMapping(value = "/google")
+    @PostMapping(value = "/google")
     public JwtResponse loginGoogle(HttpServletRequest request) throws ClientProtocolException, IOException {
         String code = request.getParameter("code");
         if (code == null || code.isEmpty()) {

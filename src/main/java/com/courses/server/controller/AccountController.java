@@ -18,8 +18,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +53,7 @@ public class AccountController {
 
         String token = userService.createAccount(registerDTO);
 
-        String registerLink = Utility.getSiteURL(request) + "/verify?token=" + token;
+        String registerLink = Utility.getSiteURL(request) + "/api/account/verify?token=" + token;
 
         String subject = "Here's the link to register";
 
@@ -63,16 +64,35 @@ public class AccountController {
         return ResponseEntity.ok(new MessageResponse("Register success. Please check email verify!!!"));
     }
 
-    @PostMapping("/verify")
-    public ResponseEntity<?> verifyUser(@Validated @RequestParam("token") String token){
+    @GetMapping("/verify")
+    public String verifyUser(HttpServletRequest request){
+        String token = request.getParameter("token");
         User user = userService.getByRegisterToken(token);
 
         if (user == null) {
-            throw new BadRequestException(1402, "token wrong");
+//            throw new BadRequestException(1402, "token wrong");
+            return "<div class=\"container text-center\">\n" +
+                    "    <h2>Verify error. Token wrong</h2>\n" +
+                    "</div>";
+        }
+
+        if(user.isActive()){
+//            throw new BadRequestException(1300, "account has already active");
+            return "<div class=\"container text-center\">\n" +
+                    "    <h2>Verify error, ccount has already active</h2>\n" +
+                    "</div>";
+        }
+        if(Duration.between(user.getTimeRegisterToken(), LocalDateTime.now()).toMinutes()>5){
+//            throw new BadRequestException(1400, "code time out");
+            return "<div class=\"container text-center\">\n" +
+                    "    <h2>Verify error, code time out</h2>\n" +
+                    "</div>";
         }
 
         userService.verifyRegister(user);
-        return ResponseEntity.ok(new MessageResponse("Verify success"));
+        return "<div class=\"container text-center\">\n" +
+                "    <h2>Congratulations, your account has been verified.</h2>\n" +
+                "</div>";
     }
 
     @PostMapping("/forgot-password")
