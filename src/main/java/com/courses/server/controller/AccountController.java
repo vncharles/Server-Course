@@ -103,7 +103,7 @@ public class AccountController {
         String email = forgot.get("email");
 
         userService.updateResetPasswordToken(token, email);
-        String resetPasswordLink = Utility.getSiteURL(request) + "http://localhost:3000/react/reset-password/" + token;
+        String resetPasswordLink = "http://localhost:3000/react/reset-password/" + token;
 
         String subject = "Here's the link to reset your password";
 
