@@ -2,6 +2,9 @@ package com.courses.server.controller;
 
 import com.courses.server.dto.MessageResponse;
 import com.courses.server.dto.request.RegisterDTO;
+import com.courses.server.dto.request.RoleDTO;
+import com.courses.server.dto.request.UpdateActiveUserDTO;
+import com.courses.server.dto.request.UserUpdateDTO;
 import com.courses.server.dto.response.UserResponse;
 import com.courses.server.entity.User;
 import com.courses.server.exceptions.BadRequestException;
@@ -13,12 +16,15 @@ import io.swagger.annotations.ApiOperation;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,7 +40,7 @@ public class AccountController {
     private EmailSenderService senderService;
 
     @GetMapping("/users")
-    @ApiOperation("Return all user in website")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getAllUser(){
         List<UserResponse> listUserResponse = userService.getListUser();
         return ResponseEntity.ok(listUserResponse);
@@ -131,11 +137,32 @@ public class AccountController {
         return ResponseEntity.ok(new MessageResponse("Reset password success"));
     }
 
-    @PutMapping("update_info")
-    public ResponseEntity<?> updateInfo(){
+    @PutMapping("/update-info")
+    public ResponseEntity<?> updateInfo(@RequestBody UserUpdateDTO updateDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        return ResponseEntity.ok(new MessageResponse("Sửa thành công"));
+        userService.updateUser(username, updateDTO);
+        return ResponseEntity.ok(new MessageResponse("Update info success"));
+    }
+
+    @PostMapping("/upload-avatar")
+    public ResponseEntity<?> uploadAvatar(@RequestParam("avatar") MultipartFile avatar) throws IOException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        userService.updateAvatar(username, avatar);
+        return ResponseEntity.ok(new MessageResponse("Upload avatar success"));
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<UserResponse> userDetail(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        User user = userService.getUserDetail(username);
+        UserResponse userResponse = new UserResponse(user);
+
+        return ResponseEntity.ok(userResponse);
     }
 }
 

@@ -11,11 +11,11 @@ import java.util.Set;
 @Setter
 public class RoleDTO {
     private String username;
-    private Set<ERole> roles;
+    private ERole role;
 
-    public RoleDTO(String username, Set<ERole> roles) {
+    public RoleDTO(String username, ERole role) {
         this.username = username;
-        this.roles = roles;
+        this.role = role;
     }
 
     public RoleDTO() {

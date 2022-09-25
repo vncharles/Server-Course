@@ -218,7 +218,7 @@ public class TemplateSendMail {
                 "                \"\n" +
                 "              >\n" +
                 "                <p style=\"margin: 0\">\n" +
-                "                  Welcome to the GenzLiin Store. " + description + " Just hit the button below.\n" +
+                "                  Welcome to the Fcourse. " + description + " Just hit the button below.\n" +
                 "                </p>\n" +
                 "              </td>\n" +
                 "            </tr>\n" +
@@ -337,7 +337,7 @@ public class TemplateSendMail {
                 "                  line-height: 25px;\n" +
                 "                \"\n" +
                 "              >\n" +
-                "                <p style=\"margin: 0\">Cheers,<br />GenzLiin Store</p>\n" +
+                "                <p style=\"margin: 0\">Cheers,<br />Fcourse</p>\n" +
                 "              </td>\n" +
                 "            </tr>\n" +
                 "          </table>\n" +
@@ -382,7 +382,7 @@ public class TemplateSendMail {
                 "                </h2>\n" +
                 "                <p style=\"margin: 0\">\n" +
                 "                  <a\n" +
-                "                    href=\"https://www.facebook.com/genzliin.store\"\n" +
+                "                    href=\"https://www.facebook.com/cong.nguyenngoc.50159\"\n" +
                 "                    target=\"_blank\"\n" +
                 "                    style=\"color: #ffa73b\"\n" +
                 "                    >We&rsquo;re here to help you out</a\n" +

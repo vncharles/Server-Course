@@ -23,10 +23,9 @@ public class User extends BaseDomain{
 
     @NotNull
     private String password;
-
-//    private String fullname;
-//    private String phoneNumber;
-//    private String imageUrl;
+    private String fullname;
+    private String phoneNumber;
+    private String avatar;
 
     private boolean active;
 
@@ -41,11 +40,9 @@ public class User extends BaseDomain{
     @Column(name = "type_account")
     private ETypeAccount type_account;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(	name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    @OneToOne()
+    @JoinColumn(name = "role_id", referencedColumnName = "id")
+    private Role role;
 
     public User(String email, String username, String password, boolean active) {
         this.email = email;

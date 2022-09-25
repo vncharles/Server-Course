@@ -1,5 +1,7 @@
 package com.courses.server.services.impl;
 
+import com.courses.server.dto.request.UpdateActiveUserDTO;
+import com.courses.server.dto.request.UserUpdateDTO;
 import com.courses.server.dto.request.RegisterDTO;
 import com.courses.server.dto.request.RoleDTO;
 import com.courses.server.dto.response.JwtResponse;
@@ -13,9 +15,11 @@ import com.courses.server.repositories.RoleRepository;
 import com.courses.server.repositories.UserRepository;
 import com.courses.server.security.jwt.JwtUtils;
 import com.courses.server.security.services.UserDetailsImpl;
+import com.courses.server.services.FileService;
 import com.courses.server.services.UserService;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,7 +27,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -31,11 +37,17 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+    @Value("${project.image}")
+    private String path;
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private FileService fileService;
 
     @Autowired
     private PasswordEncoder encoder;
@@ -103,14 +115,11 @@ public class UserServiceImpl implements UserService {
             user.setPassword(encoder.encode(registerDTO.getPassword()));
         }
 
-        Set<Role> roles = new HashSet<>();
-
         // Nếu user bth không có set role thì set thành ROLE_USER
-        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+        Role userRole = roleRepository.findByName(ERole.ROLE_GUEST)
                 .orElseThrow(() -> new NotFoundException(404, "Error: Role is not found"));
-        roles.add(userRole);
 
-        user.setRoles(roles);
+        user.setRole(userRole);
 
         String token = RandomString.make(30);
 
@@ -196,7 +205,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void setRole(RoleDTO roleDTO) {
         String username = roleDTO.getUsername();
-        Set<ERole> roles = roleDTO.getRoles();
+        ERole roles = roleDTO.getRole();
 
         if(!userRepository.existsByUsername(username)){
             throw new NotFoundException(1002, "username has not existed");
@@ -204,14 +213,66 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByUsername(username);
 
-        Set<Role> rolesNew = new HashSet<>();
-        for(ERole role: roles){
-            Role userRole = roleRepository.findByName(role)
-                    .orElseThrow(() -> new NotFoundException(404, "Error: Role is not found"));
-            rolesNew.add(userRole);
+        Role userRole = roleRepository.findByName(ERole.ROLE_GUEST)
+                .orElseThrow(() -> new NotFoundException(404, "Error: Role is not found"));
+
+        user.setRole(userRole);
+
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateUser(String username, UserUpdateDTO updateDTO) {
+        if(!userRepository.existsByUsername(username)){
+            throw new BadRequestException(1302, "account has not login");
         }
 
-        user.setRoles(rolesNew);
+        User user = userRepository.findByUsername(username);
+
+        if(updateDTO.getPhoneNumber()!=null)
+            user.setPhoneNumber(updateDTO.getPhoneNumber());
+        if(updateDTO.getFullname()!=null)
+            user.setFullname(updateDTO.getFullname());
+        if(updateDTO.getPassword()!=null)
+            user.setPassword(encoder.encode(updateDTO.getPassword()));
+
+        userRepository.save(user);
+    }
+
+    @Override
+    public User getUserDetail(String username) {
+        if(!userRepository.existsByUsername(username)){
+            throw new BadRequestException(1302, "account has not login");
+        }
+
+        return userRepository.findByUsername(username);
+    }
+
+    @Override
+    public void updateAvatar(String username, MultipartFile image) throws IOException {
+        if(!userRepository.existsByUsername(username)){
+            throw new BadRequestException(1302, "account has not login");
+        }
+
+        User user = userRepository.findByUsername(username);
+
+        String fileName = fileService.uploadImage(path, image);
+        user.setAvatar(fileName);
+    }
+
+    @Override
+
+    public void updateActive(String username, UpdateActiveUserDTO activeUserDTO) {
+        if(!userRepository.existsByUsername(username)){
+            throw new BadRequestException(1302, "account has not login");
+        }
+        if(!userRepository.existsByUsername(activeUserDTO.getUsername())){
+            throw new NotFoundException(1002, "username has not existed");
+        }
+
+        User user = userRepository.findByUsername(activeUserDTO.getUsername());
+
+        user.setActive(activeUserDTO.getStatus());
         userRepository.save(user);
     }
 }

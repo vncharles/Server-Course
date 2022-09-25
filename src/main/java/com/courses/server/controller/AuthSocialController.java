@@ -14,7 +14,9 @@ import com.courses.server.security.services.UserDetailsImpl;
 import com.courses.server.utils.GoogleUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,6 +64,16 @@ public class AuthSocialController {
         if (code == null || code.isEmpty()) {
             throw new BadRequestException(1402, "token wrong");
         }
+
+        String[] chunks = code.split("\\.");
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+
+        String header = new String(decoder.decode(chunks[0]));
+        String payload = new String(decoder.decode(chunks[1]));
+
+        System.out.println("header: " + header);
+        System.out.println("payload: " + payload );
+
         ObjectMapper mapper = new ObjectMapper();
         String token = googleUtils.getToken(code);
         JsonNode node = mapper.readTree(token);
@@ -84,11 +97,10 @@ public class AuthSocialController {
             user.setUsername(googlePojo.getEmail());
             user.setPassword(encoder.encode(googlePojo.getSocial_user_id()));
             user.setType_account(ETypeAccount.GOOGLE);
-            Set<Role> roles = new HashSet<>();
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+
+            Role userRole = roleRepository.findByName(ERole.ROLE_GUEST)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-            roles.add(userRole);
-            user.setRoles(roles);
+            user.setRole(userRole);
 
             userRepository.save(user);
         }
