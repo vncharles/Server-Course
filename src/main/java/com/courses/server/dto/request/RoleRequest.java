@@ -9,15 +9,15 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class RoleDTO {
+public class RoleRequest {
     private String username;
     private ERole role;
 
-    public RoleDTO(String username, ERole role) {
+    public RoleRequest(String username, ERole role) {
         this.username = username;
         this.role = role;
     }
 
-    public RoleDTO() {
+    public RoleRequest() {
     }
 }

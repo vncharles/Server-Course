@@ -2,24 +2,22 @@ package com.courses.server.services;
 
 import com.courses.server.dto.request.UpdateActiveUserDTO;
 import com.courses.server.dto.request.UserUpdateDTO;
-import com.courses.server.dto.request.RegisterDTO;
-import com.courses.server.dto.request.RoleDTO;
+import com.courses.server.dto.request.RegisterRequest;
+import com.courses.server.dto.request.RoleRequest;
 import com.courses.server.dto.response.JwtResponse;
 import com.courses.server.dto.response.UserResponse;
-import com.courses.server.entity.ERole;
 import com.courses.server.entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public interface UserService {
     List<UserResponse> getListUser();
 
-    String createAccount(RegisterDTO registerDTO);
+    String createAccount(RegisterRequest registerDTO);
 
     void verifyRegister(User user);
 
@@ -33,7 +31,7 @@ public interface UserService {
 
     User getByRegisterToken(String token);
 
-    void setRole(RoleDTO roleDTO);
+    void updateRole(RoleRequest roleDTO);
 
     void updateUser(String username, UserUpdateDTO user);
 

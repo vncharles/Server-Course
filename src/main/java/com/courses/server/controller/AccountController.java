@@ -1,9 +1,7 @@
 package com.courses.server.controller;
 
 import com.courses.server.dto.MessageResponse;
-import com.courses.server.dto.request.RegisterDTO;
-import com.courses.server.dto.request.RoleDTO;
-import com.courses.server.dto.request.UpdateActiveUserDTO;
+import com.courses.server.dto.request.RegisterRequest;
 import com.courses.server.dto.request.UserUpdateDTO;
 import com.courses.server.dto.response.UserResponse;
 import com.courses.server.entity.User;
@@ -12,11 +10,9 @@ import com.courses.server.services.UserService;
 import com.courses.server.services.impl.EmailSenderService;
 import com.courses.server.utils.TemplateSendMail;
 import com.courses.server.utils.Utility;
-import io.swagger.annotations.ApiOperation;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -27,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -39,13 +34,6 @@ public class AccountController {
     @Autowired
     private EmailSenderService senderService;
 
-    @GetMapping("/users")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getAllUser(){
-        List<UserResponse> listUserResponse = userService.getListUser();
-        return ResponseEntity.ok(listUserResponse);
-    }
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@Validated @RequestBody Map<String, String> login) {
         String username = login.get("username");
@@ -54,7 +42,7 @@ public class AccountController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Validated @RequestBody RegisterDTO registerDTO,
+    public ResponseEntity<?> registerUser(@Validated @RequestBody RegisterRequest registerDTO,
                                           HttpServletRequest request){
 
         String token = userService.createAccount(registerDTO);

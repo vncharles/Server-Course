@@ -2,8 +2,8 @@ package com.courses.server.services.impl;
 
 import com.courses.server.dto.request.UpdateActiveUserDTO;
 import com.courses.server.dto.request.UserUpdateDTO;
-import com.courses.server.dto.request.RegisterDTO;
-import com.courses.server.dto.request.RoleDTO;
+import com.courses.server.dto.request.RegisterRequest;
+import com.courses.server.dto.request.RoleRequest;
 import com.courses.server.dto.response.JwtResponse;
 import com.courses.server.dto.response.UserResponse;
 import com.courses.server.entity.ERole;
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String createAccount(RegisterDTO registerDTO) {
+    public String createAccount(RegisterRequest registerDTO) {
         User userCheck = userRepository.findByEmail(registerDTO.getEmail());
         if(userCheck!=null && Duration.between(userCheck.getTimeRegisterToken(), LocalDateTime.now()).toMinutes()<5
                 && registerDTO.getUsername().equals(userCheck.getUsername())){
@@ -203,7 +203,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void setRole(RoleDTO roleDTO) {
+    public void updateRole(RoleRequest roleDTO) {
         String username = roleDTO.getUsername();
         ERole roles = roleDTO.getRole();
 
@@ -212,8 +212,8 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userRepository.findByUsername(username);
-
-        Role userRole = roleRepository.findByName(ERole.ROLE_GUEST)
+        System.out.println("ROLE: " + roleDTO.getRole());
+        Role userRole = roleRepository.findByName(roleDTO.getRole())
                 .orElseThrow(() -> new NotFoundException(404, "Error: Role is not found"));
 
         user.setRole(userRole);
@@ -272,7 +272,8 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByUsername(activeUserDTO.getUsername());
 
-        user.setActive(activeUserDTO.getStatus());
+        user.setActive(!activeUserDTO.isStatus());
+
         userRepository.save(user);
     }
 }

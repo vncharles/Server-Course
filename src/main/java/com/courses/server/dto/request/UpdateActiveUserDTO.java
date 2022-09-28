@@ -7,5 +7,5 @@ import lombok.NoArgsConstructor;
 @Data @AllArgsConstructor @NoArgsConstructor
 public class UpdateActiveUserDTO {
     private String username;
-    private Boolean status;
+    private boolean status;
 }

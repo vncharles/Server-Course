@@ -7,19 +7,19 @@ import lombok.Setter;
 import java.util.Set;
 
 @Getter @Setter
-public class RegisterDTO{
+public class RegisterRequest {
     private String username;
     private String password;
     private String email;
 
-    public RegisterDTO(User user) {
+    public RegisterRequest(User user) {
         super();
         this.username = user.getUsername();
         this.password = user.getPassword();
         this.email = user.getEmail();
     }
 
-    public RegisterDTO() {
+    public RegisterRequest() {
         super();
     }
 }

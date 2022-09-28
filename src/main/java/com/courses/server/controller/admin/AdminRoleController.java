@@ -1,7 +1,7 @@
-package com.courses.server.controller;
+package com.courses.server.controller.admin;
 
 import com.courses.server.dto.MessageResponse;
-import com.courses.server.dto.request.RoleDTO;
+import com.courses.server.dto.request.RoleRequest;
 import com.courses.server.entity.Role;
 import com.courses.server.repositories.RoleRepository;
 import com.courses.server.services.UserService;
@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/role")
-public class RoleController {
+public class AdminRoleController {
     @Autowired
     private UserService userService;
 
@@ -22,8 +22,8 @@ public class RoleController {
     private RoleRepository roleRepository;
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateRole(@Validated @RequestBody RoleDTO roleDTO) {
-        userService.setRole(roleDTO);
+    public ResponseEntity<?> updateRole(@Validated @RequestBody RoleRequest roleDTO) {
+        userService.updateRole(roleDTO);
         return ResponseEntity.ok(new MessageResponse("Update role success"));
     }
 
