@@ -434,5 +434,116 @@ public class TemplateSendMail {
                 "  </body>\n" +
                 "</html>\n";
     }
+
+    public static String getSuccess(String link){
+        return "<div\n" +
+                "            style=\"\n" +
+                "                width: 100vw;\n" +
+                "                height: 100vh;\n" +
+                "                background-color: #f6f6f6;\n" +
+                "                display: flex;\n" +
+                "                justify-content: center;\n" +
+                "                font-family: 'Manrope', sans-serif;\n" +
+                "            \"\n" +
+                "        >\n" +
+                "            <div\n" +
+                "                style=\"\n" +
+                "                    width: 350px;\n" +
+                "                    padding: 40px 20px;\n" +
+                "                    text-align: center;\n" +
+                "                    margin-top: 100px;\n" +
+                "                    height: fit-content;\n" +
+                "                    border-radius: 16px;\n" +
+                "                    border: 3px solid #2bc63a;\n" +
+                "                    box-shadow: 4px 5px 50px rgb(85 85 85 / 50%);\n" +
+                "                \"\n" +
+                "            >\n" +
+                "                <img\n" +
+                "                    src=\"https://www.seekpng.com/png/detail/72-722839_success-save-success-png-icon.png\"\n" +
+                "                    alt=\"\"\n" +
+                "                    style=\"width: 100px\"\n" +
+                "                />\n" +
+                "                <h2 style=\"font-size: 36px; margin: 10px\">Congratulation</h2>\n" +
+                "                <p style=\"line-height: 1.7\">\n" +
+                "                    Your account has been successfully created. Click button\n" +
+                "                    bellow to login\n" +
+                "                </p>\n" +
+                "                <a\n" +
+                "                    href=\""+ link +"\"\n" +
+                "                    style=\"\n" +
+                "                        color: #fff;\n" +
+                "                        padding: 12px 20px;\n" +
+                "                        font-size: 15px;\n" +
+                "                        cursor: pointer;\n" +
+                "                        border-width: 0;\n" +
+                "                        line-height: 1.42857;\n" +
+                "                        border-radius: 3px;\n" +
+                "                        transition: all 0.5s;\n" +
+                "                        background-color: #efbb20;\n" +
+                "                        text-decoration: none;\n" +
+                "                    \"\n" +
+                "                    onmouseover=\"this.style.backgroundColor='#4c1864'\"\n" +
+                "                    onmouseleave=\"this.style.backgroundColor='#efbb20'\"\n" +
+                "                >\n" +
+                "                    Login\n" +
+                "                </a>\n" +
+                "            </div>\n" +
+                "        </div>";
+    }
+
+    public static String getError(String content, String link, String tilteLink) {
+        return "<div\n" +
+                "\t\t\tstyle=\"\n" +
+                "\t\t\t\twidth: 100vw;\n" +
+                "\t\t\t\theight: 100vh;\n" +
+                "\t\t\t\tbackground-color: #f6f6f6;\n" +
+                "\t\t\t\tdisplay: flex;\n" +
+                "\t\t\t\tjustify-content: center;\n" +
+                "\t\t\t\tfont-family: 'Manrope', sans-serif;\n" +
+                "\t\t\t\"\n" +
+                "\t\t>\n" +
+                "\t\t\t<div\n" +
+                "\t\t\t\tstyle=\"\n" +
+                "\t\t\t\t\twidth: 350px;\n" +
+                "\t\t\t\t\tpadding: 40px 20px;\n" +
+                "\t\t\t\t\ttext-align: center;\n" +
+                "\t\t\t\t\tmargin-top: 100px;\n" +
+                "\t\t\t\t\theight: fit-content;\n" +
+                "\t\t\t\t\tborder-radius: 16px;\n" +
+                "\t\t\t\t\tborder: 3px solid #c62b2b;\n" +
+                "\t\t\t\t\tbox-shadow: 4px 5px 50px rgb(85 85 85 / 50%);\n" +
+                "\t\t\t\t\"\n" +
+                "\t\t\t>\n" +
+                "\t\t\t\t<img\n" +
+                "\t\t\t\t\tsrc=\"https://www.seekpng.com/png/detail/207-2074918_error-cross-icon-symbol-error-error-error-error.png\"\n" +
+                "\t\t\t\t\talt=\"\"\n" +
+                "\t\t\t\t\tstyle=\"width: 100px\"\n" +
+                "\t\t\t\t/>\n" +
+                "\t\t\t\t<h2 style=\"font-size: 36px; margin: 10px\">Error</h2>\n" +
+                "\t\t\t\t<p style=\"line-height: 1.7\">\n" +
+                "\t\t\t\t\t"+ content +"\n" +
+                "\t\t\t\t</p>\n" +
+                "\t\t\t\t<a\n" +
+                "\t\t\t\t\thref=\" " + link + "\"\n" +
+                "\t\t\t\t\tstyle=\"\n" +
+                "\t\t\t\t\t\tcolor: #fff;\n" +
+                "\t\t\t\t\t\tpadding: 12px 20px;\n" +
+                "\t\t\t\t\t\tfont-size: 15px;\n" +
+                "\t\t\t\t\t\tcursor: pointer;\n" +
+                "\t\t\t\t\t\tborder-width: 0;\n" +
+                "\t\t\t\t\t\tline-height: 1.42857;\n" +
+                "\t\t\t\t\t\tborder-radius: 3px;\n" +
+                "\t\t\t\t\t\ttransition: all 0.5s;\n" +
+                "\t\t\t\t\t\tbackground-color: #efbb20;\n" +
+                "\t\t\t\t\t\ttext-decoration: none;\n" +
+                "\t\t\t\t\t\"\n" +
+                "\t\t\t\t\tonmouseover=\"this.style.backgroundColor='#4c1864'\"\n" +
+                "\t\t\t\t\tonmouseleave=\"this.style.backgroundColor='#efbb20'\"\n" +
+                "\t\t\t\t>\n" +
+                "\t\t\t\t\t" + tilteLink + "\n" +
+                "\t\t\t\t</a>\n" +
+                "\t\t\t</div>\n" +
+                "\t\t</div>";
+    }
 }
 

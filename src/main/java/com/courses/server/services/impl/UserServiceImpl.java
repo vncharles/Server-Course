@@ -1,11 +1,11 @@
 package com.courses.server.services.impl;
 
-import com.courses.server.dto.request.UpdateActiveUserDTO;
-import com.courses.server.dto.request.UserUpdateDTO;
+import com.courses.server.dto.request.UpdateActiveUserRequest;
+import com.courses.server.dto.request.UserUpdateRequest;
 import com.courses.server.dto.request.RegisterRequest;
 import com.courses.server.dto.request.RoleRequest;
 import com.courses.server.dto.response.JwtResponse;
-import com.courses.server.dto.response.UserResponse;
+import com.courses.server.dto.response.UserDTO;
 import com.courses.server.entity.ERole;
 import com.courses.server.entity.Role;
 import com.courses.server.entity.User;
@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Value("${project.image}")
-    private String path;
+    @Value("${avatar-file-upload-dir}")
+    String path;
 
     @Autowired
     private UserRepository userRepository;
@@ -62,11 +62,11 @@ public class UserServiceImpl implements UserService {
     private JwtUtils jwtUtils;
 
     @Override
-    public List<UserResponse> getListUser() {
+    public List<UserDTO> getListUser() throws IOException {
         List<User> listUser = userRepository.findAll();
-        List<UserResponse> listUserResponse = new ArrayList<>();
+        List<UserDTO> listUserResponse = new ArrayList<>();
         for(User user: listUser){
-            listUserResponse.add(new UserResponse(user));
+            listUserResponse.add(new UserDTO(user));
         }
         return listUserResponse;
     }
@@ -222,7 +222,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(String username, UserUpdateDTO updateDTO) {
+    public void updateUser(String username, UserUpdateRequest updateDTO) {
         if(!userRepository.existsByUsername(username)){
             throw new BadRequestException(1302, "account has not login");
         }
@@ -258,11 +258,13 @@ public class UserServiceImpl implements UserService {
 
         String fileName = fileService.uploadImage(path, image);
         user.setAvatar(fileName);
+
+        userRepository.save(user);
     }
 
     @Override
 
-    public void updateActive(String username, UpdateActiveUserDTO activeUserDTO) {
+    public void updateActive(String username, UpdateActiveUserRequest activeUserDTO) {
         if(!userRepository.existsByUsername(username)){
             throw new BadRequestException(1302, "account has not login");
         }

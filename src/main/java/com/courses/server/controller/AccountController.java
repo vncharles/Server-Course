@@ -2,8 +2,8 @@ package com.courses.server.controller;
 
 import com.courses.server.dto.MessageResponse;
 import com.courses.server.dto.request.RegisterRequest;
-import com.courses.server.dto.request.UserUpdateDTO;
-import com.courses.server.dto.response.UserResponse;
+import com.courses.server.dto.request.UserUpdateRequest;
+import com.courses.server.dto.response.UserDTO;
 import com.courses.server.entity.User;
 import com.courses.server.exceptions.BadRequestException;
 import com.courses.server.services.UserService;
@@ -15,12 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StreamUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -28,6 +31,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/account")
 public class AccountController {
+    @Value("${avatar-file-upload-dir}")
+    String path;
+
     @Autowired
     private UserService userService;
 
@@ -63,30 +69,20 @@ public class AccountController {
         String token = request.getParameter("token");
         User user = userService.getByRegisterToken(token);
 
-        if (user == null) {
-//            throw new BadRequestException(1402, "token wrong");
-            return "<div class=\"container text-center\">\n" +
-                    "    <h2>Verify error. Token wrong</h2>\n" +
-                    "</div>";
-        }
-
         if(user.isActive()){
 //            throw new BadRequestException(1300, "account has already active");
-            return "<div class=\"container text-center\">\n" +
-                    "    <h2>Verify error, ccount has already active</h2>\n" +
-                    "</div>";
+            return TemplateSendMail.getError("Account has already active!!!", "http://localhost:3000/react", "FCourses");
         }
         if(Duration.between(user.getTimeRegisterToken(), LocalDateTime.now()).toMinutes()>5){
 //            throw new BadRequestException(1400, "code time out");
-            return "<div class=\"container text-center\">\n" +
-                    "    <h2>Verify error, code time out</h2>\n" +
-                    "</div>";
+            return TemplateSendMail.getError("Authentication timeout. Please register again!", "http://localhost:3000/react/register", "Register");
+        }
+        if (user == null) {
+            return TemplateSendMail.getError("Token wrong!!!", "http://localhost:3000/react", "FCourses");
         }
 
         userService.verifyRegister(user);
-        return "<div class=\"container text-center\">\n" +
-                "    <h2>Congratulations, your account has been verified.</h2>\n" +
-                "</div>";
+        return TemplateSendMail.getSuccess("http://localhost:3000/react/login");
     }
 
     @PostMapping("/forgot-password")
@@ -126,7 +122,7 @@ public class AccountController {
     }
 
     @PutMapping("/update-info")
-    public ResponseEntity<?> updateInfo(@RequestBody UserUpdateDTO updateDTO) {
+    public ResponseEntity<?> updateInfo(@RequestBody UserUpdateRequest updateDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         userService.updateUser(username, updateDTO);
@@ -143,12 +139,17 @@ public class AccountController {
     }
 
     @GetMapping("/info")
-    public ResponseEntity<UserResponse> userDetail(){
+    public ResponseEntity<UserDTO> userDetail() throws IOException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
         User user = userService.getUserDetail(username);
-        UserResponse userResponse = new UserResponse(user);
+        UserDTO userResponse = new UserDTO(user);
+
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path+user.getAvatar());
+        System.out.println("Unput stream: " + inputStream);
+        System.out.println("Path: " + path+user.getAvatar());
+        userResponse.setAvatar(StreamUtils.copyToByteArray(inputStream));
 
         return ResponseEntity.ok(userResponse);
     }

@@ -5,7 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data @AllArgsConstructor @NoArgsConstructor
-public class UpdateActiveUserDTO {
-    private String username;
-    private boolean status;
+public class UserUpdateRequest {
+    private String password;
+    private String fullname;
+    private String phoneNumber;
 }

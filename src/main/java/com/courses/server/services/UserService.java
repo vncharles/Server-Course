@@ -1,11 +1,11 @@
 package com.courses.server.services;
 
-import com.courses.server.dto.request.UpdateActiveUserDTO;
-import com.courses.server.dto.request.UserUpdateDTO;
+import com.courses.server.dto.request.UpdateActiveUserRequest;
+import com.courses.server.dto.request.UserUpdateRequest;
 import com.courses.server.dto.request.RegisterRequest;
 import com.courses.server.dto.request.RoleRequest;
 import com.courses.server.dto.response.JwtResponse;
-import com.courses.server.dto.response.UserResponse;
+import com.courses.server.dto.response.UserDTO;
 import com.courses.server.entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 public interface UserService {
-    List<UserResponse> getListUser();
+    List<UserDTO> getListUser() throws IOException;
 
     String createAccount(RegisterRequest registerDTO);
 
@@ -33,11 +33,11 @@ public interface UserService {
 
     void updateRole(RoleRequest roleDTO);
 
-    void updateUser(String username, UserUpdateDTO user);
+    void updateUser(String username, UserUpdateRequest user);
 
     User getUserDetail(String username);
 
     void updateAvatar(String username, MultipartFile image) throws IOException;
 
-    void updateActive(String username, UpdateActiveUserDTO activeUserDTO);
+    void updateActive(String username, UpdateActiveUserRequest activeUserDTO);
 }

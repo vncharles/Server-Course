@@ -72,11 +72,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.cors().configurationSource(request -> corsConfiguration).and().csrf().disable()
                 .authorizeRequests()
+                .antMatchers("/api/admin/**").access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/api/admin/web-contact/").access("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPPORTER')")
+                .antMatchers("/api/role/**").access("hasRole('ROLE_ADMIN')")
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/account/**").permitAll()
                 .antMatchers("/api/oauth2/**").permitAll()
-                .antMatchers("/api/admin/**").access("hasRole('ROLE_ADMIN')")
-                .antMatchers("/api/role/**").access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/api/web-contact/**").permitAll()
                 .anyRequest().authenticated().and().exceptionHandling()
                 .authenticationEntryPoint(unauthorizedHandler).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
