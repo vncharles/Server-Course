@@ -60,7 +60,7 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Override
     public void addSubject(SubjectRequest subjectRequest) {
-        System.out.println("Subject request service: " + subjectRequest);
+//        System.out.println("Subject request service: " + subjectRequest);
         if(subjectRequest.getCode()==null || subjectRequest.getName()==null)
             throw new BadRequestException(400, "Please enter enough information!!");
         Subject subject = new Subject();
@@ -107,10 +107,16 @@ public class SubjectServiceImpl implements SubjectService {
 
         if(subjectRequest.getManager()!=null){
             User manager = userRepository.findByUsername(subjectRequest.getManager());
+            if(null==manager){
+                throw new NotFoundException(404, "Manager is not found!!!");
+            }
             subject.setManager(manager);
         }
         if(subjectRequest.getExpert()!=null){
             User expert = userRepository.findByUsername(subjectRequest.getExpert());
+            if(null==expert){
+                throw new NotFoundException(404, "Expert is not found!!!");
+            }
             subject.setExpert(expert);
         }
 
