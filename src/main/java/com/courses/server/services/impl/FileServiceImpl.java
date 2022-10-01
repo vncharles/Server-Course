@@ -1,39 +1,73 @@
 package com.courses.server.services.impl;
 
+import com.courses.server.config.FileStorageProperties;
+import com.courses.server.exceptions.FileStorageException;
+import com.courses.server.exceptions.MyFileNotFoundException;
 import com.courses.server.services.FileService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
 public class FileServiceImpl implements FileService {
-    @Override
-    public String uploadImage(String path, MultipartFile file) throws IOException {
-        //File name
-        String name = file.getOriginalFilename();
+    private final Path fileStorageLocation;
 
+    @Autowired
+    public FileServiceImpl(FileStorageProperties fileStorageProperties) {
+        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
+                .toAbsolutePath().normalize();
+
+        try {
+            Files.createDirectories(this.fileStorageLocation);
+        } catch (Exception ex) {
+            throw new FileStorageException("Could not create the directory where the uploaded files will be stored.", ex);
+        }
+    }
+
+    public String storeFile(MultipartFile file) {
+        // Normalize file name
+        String name = file.getOriginalFilename();
         // random generate file
         String randomID = UUID.randomUUID().toString();
         String fileName = randomID.concat(name.substring(name.lastIndexOf(".")));
+        try {
+            // Check if the file's name contains invalid characters
+            if(fileName.contains("..")) {
+                throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
 
-        //Fullpath
-        String filePath = path + File.separator + fileName;
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-        //create folder if not created
-        File f = new File(path);
-        if(!f.exists()) {
-            f.mkdir();
+            return fileName;
+        } catch (IOException ex) {
+            throw new FileStorageException("Could not store file " + fileName + ". Please try again!", ex);
         }
+    }
 
-        //file copy
-        Files.copy(file.getInputStream(), Paths.get(filePath));
-
-        return fileName;
+    public Resource loadFileAsResource(String fileName) {
+        try {
+            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if(resource.exists()) {
+                return resource;
+            } else {
+                throw new MyFileNotFoundException("File not found " + fileName);
+            }
+        } catch (MalformedURLException ex) {
+            throw new MyFileNotFoundException("File not found " + fileName, ex);
+        }
     }
 }

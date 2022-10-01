@@ -8,5 +8,6 @@ public enum ERole {
     ROLE_MARKETER,
     ROLE_TRAINEE,
     ROLE_GUEST,
+    ROLE_EXPERT,
 }
 

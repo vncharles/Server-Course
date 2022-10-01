@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Value("${avatar-file-upload-dir}")
-    String path;
+//    @Value("${avatar-file-upload-dir}")
+//    String path;
 
     @Autowired
     private UserRepository userRepository;
@@ -53,23 +53,10 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder encoder;
 
     @Autowired
-    private EmailSenderService senderService;
-
-    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
     private JwtUtils jwtUtils;
-
-    @Override
-    public List<UserDTO> getListUser() throws IOException {
-        List<User> listUser = userRepository.findAll();
-        List<UserDTO> listUserResponse = new ArrayList<>();
-        for(User user: listUser){
-            listUserResponse.add(new UserDTO(user));
-        }
-        return listUserResponse;
-    }
 
     @Override
     public String createAccount(RegisterRequest registerDTO) {
@@ -203,6 +190,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getListUser() throws IOException {
+        return userRepository.findAll();
+    }
+
+    @Override
     public void updateRole(RoleRequest roleDTO) {
         String username = roleDTO.getUsername();
         ERole roles = roleDTO.getRole();
@@ -224,7 +216,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(String username, UserUpdateRequest updateDTO) {
         if(!userRepository.existsByUsername(username)){
-            throw new BadRequestException(1302, "account has not login");
+            throw new BadRequestException(1302, "account has not found");
         }
 
         User user = userRepository.findByUsername(username);
@@ -249,21 +241,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateAvatar(String username, MultipartFile image) throws IOException {
+    public void updateAvatar(String username, MultipartFile file) throws IOException {
         if(!userRepository.existsByUsername(username)){
             throw new BadRequestException(1302, "account has not login");
         }
 
         User user = userRepository.findByUsername(username);
 
-        String fileName = fileService.uploadImage(path, image);
+        String fileName = fileService.storeFile(file);
         user.setAvatar(fileName);
 
         userRepository.save(user);
     }
 
     @Override
-
     public void updateActive(String username, UpdateActiveUserRequest activeUserDTO) {
         if(!userRepository.existsByUsername(username)){
             throw new BadRequestException(1302, "account has not login");
@@ -278,4 +269,6 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
     }
+
+
 }

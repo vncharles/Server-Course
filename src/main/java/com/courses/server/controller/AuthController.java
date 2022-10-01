@@ -6,33 +6,32 @@ import com.courses.server.dto.request.UserUpdateRequest;
 import com.courses.server.dto.response.UserDTO;
 import com.courses.server.entity.User;
 import com.courses.server.exceptions.BadRequestException;
+import com.courses.server.services.FileService;
 import com.courses.server.services.UserService;
 import com.courses.server.services.impl.EmailSenderService;
 import com.courses.server.utils.TemplateSendMail;
 import com.courses.server.utils.Utility;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StreamUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/account")
-public class AccountController {
-    @Value("${avatar-file-upload-dir}")
-    String path;
+public class AuthController {
 
     @Autowired
     private UserService userService;
@@ -121,37 +120,5 @@ public class AccountController {
         return ResponseEntity.ok(new MessageResponse("Reset password success"));
     }
 
-    @PutMapping("/update-info")
-    public ResponseEntity<?> updateInfo(@RequestBody UserUpdateRequest updateDTO) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        userService.updateUser(username, updateDTO);
-        return ResponseEntity.ok(new MessageResponse("Update info success"));
-    }
-
-    @PostMapping("/upload-avatar")
-    public ResponseEntity<?> uploadAvatar(@RequestParam("avatar") MultipartFile avatar) throws IOException {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-
-        userService.updateAvatar(username, avatar);
-        return ResponseEntity.ok(new MessageResponse("Upload avatar success"));
-    }
-
-    @GetMapping("/info")
-    public ResponseEntity<UserDTO> userDetail() throws IOException {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-
-        User user = userService.getUserDetail(username);
-        UserDTO userResponse = new UserDTO(user);
-
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path+user.getAvatar());
-        System.out.println("Unput stream: " + inputStream);
-        System.out.println("Path: " + path+user.getAvatar());
-        userResponse.setAvatar(StreamUtils.copyToByteArray(inputStream));
-
-        return ResponseEntity.ok(userResponse);
-    }
 }
 

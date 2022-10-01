@@ -13,13 +13,15 @@ public class WebContact extends BaseDomain {
     private String fullName;
     private String email;
     private String phoneNumber;
+    private String address;
     private String message;
     private boolean status;
 
-    public WebContact(String fullName, String email, String phoneNumber, String message, boolean status) {
+    public WebContact(String fullName, String email, String phoneNumber, String address, String message, boolean status) {
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.address = address;
         this.message = message;
         this.status = status;
     }

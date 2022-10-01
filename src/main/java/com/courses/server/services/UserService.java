@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 public interface UserService {
-    List<UserDTO> getListUser() throws IOException;
+    List<User> getListUser() throws IOException;
 
     String createAccount(RegisterRequest registerDTO);
 
@@ -40,4 +40,5 @@ public interface UserService {
     void updateAvatar(String username, MultipartFile image) throws IOException;
 
     void updateActive(String username, UpdateActiveUserRequest activeUserDTO);
+
 }

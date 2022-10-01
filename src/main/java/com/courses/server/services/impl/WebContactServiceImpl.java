@@ -29,6 +29,7 @@ public class WebContactServiceImpl implements WebContactService {
                 webContactRequest.getEmail(),
                 webContactRequest.getPhoneNumber(),
                 webContactRequest.getMessage(),
+                webContactRequest.getAddress(),
                 false
         );
 
@@ -54,11 +55,18 @@ public class WebContactServiceImpl implements WebContactService {
         Optional<WebContact> webContactFind = webContactRepository.findById(id);
         WebContact webContact = webContactFind.get();
 
-        webContact.setFullName(webContactRequest.getFullName());
-        webContact.setEmail(webContactRequest.getEmail());
-        webContact.setPhoneNumber(webContactRequest.getPhoneNumber());
-        webContact.setMessage(webContactRequest.getMessage());
+        if(webContactRequest.getFullName()!=null)
+            webContact.setFullName(webContactRequest.getFullName());
+        if(webContactRequest.getEmail()!=null)
+            webContact.setEmail(webContactRequest.getEmail());
+        if(webContactRequest.getPhoneNumber()!=null)
+            webContact.setPhoneNumber(webContactRequest.getPhoneNumber());
+        if(webContactRequest.getMessage()!=null)
+            webContact.setMessage(webContactRequest.getMessage());
+        if(webContactRequest.getAddress()!=null)
+            webContact.setAddress(webContactRequest.getAddress());
         webContact.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
+
         webContactRepository.save(webContact);
     }
 

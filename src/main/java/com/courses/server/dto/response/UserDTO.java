@@ -2,6 +2,7 @@ package com.courses.server.dto.response;
 
 import com.courses.server.entity.ERole;
 import com.courses.server.entity.User;
+import com.courses.server.utils.Utility;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,14 +20,14 @@ public class UserDTO {
     private String email;
     private String fullname;
     private String phoneNumber;
-    private byte[] avatar;
+    private String avatar;
     private ERole role;
     private boolean active;
 
     public UserDTO() {
     }
 
-    public UserDTO(User user) throws IOException {
+    public UserDTO(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
         this.email = user.getEmail();
@@ -34,5 +35,6 @@ public class UserDTO {
         this.phoneNumber = user.getPhoneNumber();
         this.role = user.getRole().getName();
         this.active = user.isActive();
+        this.avatar = "http://localhost:8080/api/account/downloadFile/" + user.getAvatar();
     }
 }
