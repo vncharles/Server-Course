@@ -61,7 +61,7 @@ public class SubjectController {
 
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createSubject(@Validated @RequestBody SubjectRequest subjectRequest) {
+    public ResponseEntity<?> createSubject(@RequestBody SubjectRequest subjectRequest) {
 //        System.out.println("Subject request: " + subjectRequest);
         subjectService.addSubject(subjectRequest);
 

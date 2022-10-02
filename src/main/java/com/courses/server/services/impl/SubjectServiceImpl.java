@@ -63,6 +63,9 @@ public class SubjectServiceImpl implements SubjectService {
 //        System.out.println("Subject request service: " + subjectRequest);
         if(subjectRequest.getCode()==null || subjectRequest.getName()==null)
             throw new BadRequestException(400, "Please enter enough information!!");
+        if(subjectRepository.findByCode(subjectRequest.getCode())!=null){
+            throw new BadRequestException(400, "Code subject is exist");
+        }
         Subject subject = new Subject();
         subject.setCode(subjectRequest.getCode());
         subject.setName(subjectRequest.getName());
@@ -74,12 +77,22 @@ public class SubjectServiceImpl implements SubjectService {
             subject.setImage(fileName);
         }
 
-        User manager = userRepository.findByUsername(subjectRequest.getManager());
-        if(manager.getRole().getName().equals(ERole.ROLE_MANAGER))
-            subject.setManager(manager);
-        User expert = userRepository.findByUsername(subjectRequest.getExpert());
-        if(expert.getRole().getName().equals(ERole.ROLE_EXPERT))
-            subject.setExpert(expert);
+        if(subjectRequest.getManager()!=null){
+            User manager = userRepository.findByUsername(subjectRequest.getManager());
+            if(null==manager){
+                throw new NotFoundException(404, "Manager is not found!!!");
+            } else if(manager.getRole().getName().equals(ERole.ROLE_MANAGER))
+                subject.setManager(manager);
+        }
+
+        if(subjectRequest.getExpert()!=null){
+            User expert = userRepository.findByUsername(subjectRequest.getExpert());
+            if(null==expert){
+                throw new NotFoundException(404, "Expert is not found!!!");
+            } else if(expert.getRole().getName().equals(ERole.ROLE_EXPERT))
+                subject.setExpert(expert);
+        }
+
 
         subjectRepository.save(subject);
     }

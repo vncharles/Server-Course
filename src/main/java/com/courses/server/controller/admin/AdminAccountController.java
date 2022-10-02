@@ -30,7 +30,7 @@ public class AdminAccountController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/")
+    @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getAllUser() throws IOException, InterruptedException {
         List<User> users = userService.getListUser();
