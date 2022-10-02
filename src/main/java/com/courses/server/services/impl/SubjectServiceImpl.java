@@ -39,9 +39,9 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public Subject getSubjectByCode(String username, String code) {
+    public Subject getSubjectByCode(String username, Long id) {
         User user = userRepository.findByUsername(username);
-        Subject subject = subjectRepository.findByCode(code);
+        Subject subject = subjectRepository.findById(id).get();
 
         if(null==subject){
             throw new NotFoundException(404, "Subject is not found!!!");

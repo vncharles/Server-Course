@@ -10,7 +10,7 @@ import java.util.List;
 public interface SubjectService {
     List<Subject> getAllSubject(String username);
 
-    Subject getSubjectByCode(String username, String code);
+    Subject getSubjectByCode(String username, Long id);
 
     void addSubject(SubjectRequest subjectRequest);
 

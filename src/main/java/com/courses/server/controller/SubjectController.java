@@ -48,13 +48,13 @@ public class SubjectController {
         return ResponseEntity.ok(subjectDTO);
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
-    public ResponseEntity<SubjectDTO>  subjectDetail(@PathVariable("code") String code){
+    public ResponseEntity<SubjectDTO>  subjectDetail(@PathVariable("id") Long id){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
-        Subject subject = subjectService.getSubjectByCode(username, code);
+        Subject subject = subjectService.getSubjectByCode(username, id);
 
         return ResponseEntity.ok(new SubjectDTO(subject));
     }
