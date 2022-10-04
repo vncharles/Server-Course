@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -182,6 +183,8 @@ public class UserServiceImpl implements UserService {
         customer.setPassword(encodedPassword);
 
         customer.setResetPasswordToken(null);
+        customer.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
+
         userRepository.save(customer);
     }
 
@@ -210,6 +213,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException(404, "Error: Role is not found"));
 
         user.setRole(userRole);
+
+        user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
 
         userRepository.save(user);
     }
@@ -240,7 +245,7 @@ public class UserServiceImpl implements UserService {
         if(updateDTO.getPassword()!=null)
             user.setPassword(encoder.encode(updateDTO.getPassword()));
 
-        System.out.println("User before update: " + user.getId());
+        user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
 
         userRepository.save(user);
     }
@@ -261,9 +266,9 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userRepository.findByUsername(username);
-
         String fileName = fileService.storeFile(file);
         user.setAvatar(fileName);
+        user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
 
         userRepository.save(user);
     }
@@ -278,8 +283,8 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userRepository.findByUsername(activeUserDTO.getUsername());
-
         user.setActive(!activeUserDTO.isStatus());
+        user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
 
         userRepository.save(user);
     }

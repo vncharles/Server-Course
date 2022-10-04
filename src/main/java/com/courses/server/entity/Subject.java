@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 public class Subject extends BaseDomain{
     private String code;
     private String name;
+    private double price;
     private boolean status;
     private String note;
     private String image;
@@ -23,9 +24,10 @@ public class Subject extends BaseDomain{
     @JoinColumn(name = "expert_id")
     private User expert;
 
-    public Subject(String code, String name, boolean status, String note, String image) {
+    public Subject(String code, String name, double price, boolean status, String note, String image) {
         this.code = code;
         this.name = name;
+        this.price = price;
         this.status = status;
         this.note = note;
         this.image = image;

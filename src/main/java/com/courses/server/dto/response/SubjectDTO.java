@@ -8,6 +8,7 @@ public class SubjectDTO {
     private Long id;
     private String code;
     private String name;
+    private double price;
     private boolean status;
     private String note;
     private UserDTO manager;
@@ -18,6 +19,7 @@ public class SubjectDTO {
         this.id = subject.getId();
         this.code = subject.getCode();
         this.name = subject.getName();
+        this.price = subject.getPrice();
         this.status = subject.isStatus();
         this.note = subject.getNote();
         if(subject.getManager()!=null)

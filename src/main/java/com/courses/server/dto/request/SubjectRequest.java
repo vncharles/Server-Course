@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class SubjectRequest {
     private String code;
     private String name;
+    private double price;
     private boolean status;
     private String note;
     private String manager;

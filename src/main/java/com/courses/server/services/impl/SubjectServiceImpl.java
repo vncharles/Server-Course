@@ -15,6 +15,8 @@ import com.courses.server.services.SubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -69,6 +71,7 @@ public class SubjectServiceImpl implements SubjectService {
         Subject subject = new Subject();
         subject.setCode(subjectRequest.getCode());
         subject.setName(subjectRequest.getName());
+        subject.setPrice(subjectRequest.getPrice());
         subject.setStatus(subjectRequest.isStatus());
         subject.setNote(subjectRequest.getNote());
 
@@ -108,6 +111,8 @@ public class SubjectServiceImpl implements SubjectService {
             subject.setCode(subjectRequest.getCode());
         if(subjectRequest.getName()!=null)
             subject.setName(subjectRequest.getName());
+        if(subjectRequest.getPrice()>0)
+            subject.setPrice(subjectRequest.getPrice());
         if(subjectRequest.getNote()!=null)
             subject.setNote(subjectRequest.getNote());
 
@@ -132,6 +137,7 @@ public class SubjectServiceImpl implements SubjectService {
             }
             subject.setExpert(expert);
         }
+        subject.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
 
         subjectRepository.save(subject);
     }
@@ -152,6 +158,7 @@ public class SubjectServiceImpl implements SubjectService {
             }
             subject.setExpert(expertNew);
         }
+        subject.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
 
         subjectRepository.save(subject);
     }

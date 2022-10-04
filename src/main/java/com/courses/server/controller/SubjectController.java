@@ -26,17 +26,33 @@ public class SubjectController {
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
-    public ResponseEntity<?> allSubject(@Param("name")String name){
+    public ResponseEntity<?> allSubject(@Param("name")String name,
+                                        @Param("code") String code){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         List<Subject> subjectList = subjectService.getAllSubject(username);
-        if(null!=name){
+        if(null!=name || null!=code){
             List<SubjectDTO> subjectName = new ArrayList<>();
-            for(Subject subject: subjectList){
-                if(subject.getName().contains(name)){
-                    subjectName.add(new SubjectDTO(subject));
+
+            if(name!=null) {
+                for (Subject subject : subjectList) {
+                    if (subject.getName().contains(name)) {
+                        subjectName.add(new SubjectDTO(subject));
+                    }
                 }
             }
+
+            if(code!=null){
+                List<SubjectDTO> subjectCode = new ArrayList<>();
+                for (SubjectDTO subject : subjectName) {
+                    if (subject.getCode().contains(code)) {
+                        subjectCode.add(subject);
+                    }
+                }
+
+                return ResponseEntity.ok(subjectCode);
+            }
+
             return ResponseEntity.ok(subjectName);
         }
 
