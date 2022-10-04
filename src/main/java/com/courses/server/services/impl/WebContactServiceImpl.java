@@ -28,8 +28,8 @@ public class WebContactServiceImpl implements WebContactService {
                 webContactRequest.getFullName(),
                 webContactRequest.getEmail(),
                 webContactRequest.getPhoneNumber(),
-                webContactRequest.getMessage(),
                 webContactRequest.getAddress(),
+                webContactRequest.getMessage(),
                 false
         );
 

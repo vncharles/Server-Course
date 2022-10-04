@@ -32,7 +32,7 @@ public class AdminAccountController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getAllUser() throws IOException, InterruptedException {
+    public ResponseEntity<?> getAllUser() throws IOException {
         List<User> users = userService.getListUser();
         List<UserDTO> userDTOList = new ArrayList<>();
         for(User user: users) {
@@ -86,7 +86,7 @@ public class AdminAccountController {
     @PostMapping("/update-user")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateUser(@RequestBody UserUpdateRequest userUpdate) {
-        userService.updateUser(userUpdate.getUsername(), userUpdate);
+        userService.updateUser(null, userUpdate);
         return ResponseEntity.ok(new MessageResponse("Update user success"));
     }
 }

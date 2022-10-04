@@ -39,6 +39,11 @@ public class UserController {
     public ResponseEntity<?> updateInfo(@RequestBody UserUpdateRequest updateDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
+
+        if(username == null){
+            throw new BadRequestException(1302, "account has not login");
+        }
+
         userService.updateUser(username, updateDTO);
         return ResponseEntity.ok(new MessageResponse("Update info success"));
     }

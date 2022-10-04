@@ -138,7 +138,7 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Override
     public void managerUpdateSubject(ManagerSubjectRequest subjectRequest) {
-        Subject subject = subjectRepository.findByCode(subjectRequest.getCode());
+        Subject subject = subjectRepository.findById(subjectRequest.getId()).get();
         if(null==subject){
             throw new NotFoundException(404, "Subject is not found!!!");
         }

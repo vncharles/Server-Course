@@ -10,6 +10,7 @@ import com.courses.server.entity.ERole;
 import com.courses.server.entity.Role;
 import com.courses.server.entity.User;
 import com.courses.server.exceptions.BadRequestException;
+import com.courses.server.exceptions.ForbiddenException;
 import com.courses.server.exceptions.NotFoundException;
 import com.courses.server.repositories.RoleRepository;
 import com.courses.server.repositories.UserRepository;
@@ -215,18 +216,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(String username, UserUpdateRequest updateDTO) {
-        if(!userRepository.existsByUsername(username)){
-            throw new BadRequestException(1302, "account has not found");
+        if(!userRepository.existsById(updateDTO.getId())) {
+            throw new BadRequestException(1302, "User has not found");
+        }
+        User user = userRepository.findById(updateDTO.getId()).get();
+
+        if(username!=null){
+            if(user.getId() != userRepository.findByUsername(username).getId()){
+                throw new ForbiddenException(403, "Error forbidden!");
+            }
         }
 
-        User user = userRepository.findByUsername(username);
-
+        if(updateDTO.getUsername()!=null){
+            if(userRepository.existsByUsername(updateDTO.getUsername())){
+                throw new BadRequestException(1001, "username has already existed");
+            }
+            user.setUsername(updateDTO.getUsername());
+        }
         if(updateDTO.getPhoneNumber()!=null)
             user.setPhoneNumber(updateDTO.getPhoneNumber());
         if(updateDTO.getFullname()!=null)
             user.setFullname(updateDTO.getFullname());
         if(updateDTO.getPassword()!=null)
             user.setPassword(encoder.encode(updateDTO.getPassword()));
+
+        System.out.println("User before update: " + user.getId());
 
         userRepository.save(user);
     }

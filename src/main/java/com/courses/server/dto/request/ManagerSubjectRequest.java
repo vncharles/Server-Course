@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ManagerSubjectRequest {
-    private String code;
+    private Long id;
     private boolean status;
     private String expert;
 }
