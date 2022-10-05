@@ -18,7 +18,7 @@ public class User extends BaseDomain{
     @Column(updatable = false, nullable = false)
     private String email;
 
-    @Column(updatable = false, nullable = false)
+    @Column(nullable = false)
     private String username;
 
     @NotNull

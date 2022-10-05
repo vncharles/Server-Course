@@ -62,36 +62,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String createAccount(RegisterRequest registerDTO) {
-        User userCheck = userRepository.findByEmail(registerDTO.getEmail());
-        if(userCheck!=null && Duration.between(userCheck.getTimeRegisterToken(), LocalDateTime.now()).toMinutes()<5
-                && registerDTO.getUsername().equals(userCheck.getUsername())){
-            throw new BadRequestException(1401, "code on time");
-        }
-
-        if(registerDTO.getUsername()==null){
-            throw new BadRequestException(1000, "username is required");
-        } else if(!registerDTO.getUsername().matches("^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$")){
-            throw new BadRequestException(1003, "username invalid, username include letters and digits, at least 6, case-insensitive");
-        } else if(userRepository.existsByUsername(registerDTO.getUsername())
-                && userRepository.findByUsername(registerDTO.getUsername()).isActive()) {
-            throw new BadRequestException(1001, "username has already existed");
-        }
-
         if(registerDTO.getEmail()==null){
-            throw new BadRequestException(1200, "email is required");
-//        } else if(!registerDTO.getEmail().toLowerCase().matches("^[a-z][a-z0-9_\\.]{5,32}@[a-z0-9]{2,}(\\.[a-z0-9]{2,4}){1,2}$")){
-        } else if(!registerDTO.getEmail().toLowerCase().matches("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")){
-
-            throw new BadRequestException(1203, "email invalid");
-        } else if(userRepository.existsByEmail(registerDTO.getEmail())
-                && userRepository.findByEmail(registerDTO.getEmail()).isActive() ) {
-            throw new BadRequestException(1201, "email has already existed");
+            throw new BadRequestException(1200, "Email is required");
+        }
+        if(registerDTO.getUsername()==null){
+            throw new BadRequestException(1000, "Username is required");
+        }
+        if(registerDTO.getPassword()==null){
+            throw new BadRequestException(1100, "Password is required");
         }
 
-        if(registerDTO.getPassword()==null){
-            throw new BadRequestException(1100, "password is required");
-        } else if(!registerDTO.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_])[A-Za-z\\d@$!%*?&_]{8,20}$")){
-            throw new BadRequestException(1101, "password invalid, Password must be at least 8 characters with at least 1 special character 1 uppercase letter 1 lowercase letter and 1 number!");
+        User userCheckMail = userRepository.findByEmail(registerDTO.getEmail());
+        if(userCheckMail != null && userCheckMail.isActive()) {
+            throw new BadRequestException(1201, "Email has already existed");
+        } else if(!registerDTO.getEmail().toLowerCase().matches("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")){
+            throw new BadRequestException(1203, "Email invalid");
+        }
+
+        User userCheckUsername = userRepository.findByUsername(registerDTO.getUsername());
+        if(userCheckUsername != null && userCheckUsername.isActive()){
+            throw new BadRequestException(1001, "Username has already existed");
+        } else if(!registerDTO.getUsername().matches("^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$")){
+            throw new BadRequestException(1003, "Username invalid, username include letters and digits, at least 6, case-insensitive");
+        }
+
+        if(!registerDTO.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_])[A-Za-z\\d@$!%*?&_]{8,20}$")){
+            throw new BadRequestException(1101, "Password invalid, Password must be at least 8 characters with at least 1 special character 1 uppercase letter 1 lowercase letter and 1 number!");
         }
 
         User user;
@@ -122,7 +118,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void verifyRegister(User user) {
-
         user.setActive(true);
         user.setRegisterToken(null);
         userRepository.save(user);
@@ -224,6 +219,7 @@ public class UserServiceImpl implements UserService {
         if(!userRepository.existsById(updateDTO.getId())) {
             throw new BadRequestException(1302, "User has not found");
         }
+
         User user = userRepository.findById(updateDTO.getId()).get();
 
         if(username!=null){
@@ -261,10 +257,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateAvatar(String username, MultipartFile file) throws IOException {
-        if(!userRepository.existsByUsername(username)){
-            throw new BadRequestException(1302, "account has not login");
-        }
-
         User user = userRepository.findByUsername(username);
         String fileName = fileService.storeFile(file);
         user.setAvatar(fileName);

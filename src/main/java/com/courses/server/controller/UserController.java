@@ -39,9 +39,8 @@ public class UserController {
     public ResponseEntity<?> updateInfo(@RequestBody UserUpdateRequest updateDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-
-        if(username == null){
-            throw new BadRequestException(1302, "account has not login");
+        if(username == null || username.equals("anonymousUser")){
+            throw new BadRequestException(1302, "User has not login");
         }
 
         userService.updateUser(username, updateDTO);
@@ -52,6 +51,9 @@ public class UserController {
     public ResponseEntity<?> uploadAvatar(@RequestParam("avatar") MultipartFile avatar) throws IOException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
+        if(username == null || username.equals("anonymousUser")){
+            throw new BadRequestException(1302, "User has not login");
+        }
         userService.updateAvatar(username, avatar);
         return ResponseEntity.ok(new MessageResponse("Upload avatar success"));
     }

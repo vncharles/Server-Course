@@ -69,11 +69,9 @@ public class AuthController {
         User user = userService.getByRegisterToken(token);
 
         if(user.isActive()){
-//            throw new BadRequestException(1300, "account has already active");
             return TemplateSendMail.getError("Account has already active!!!", "http://localhost:3000/react", "FCourses");
         }
         if(Duration.between(user.getTimeRegisterToken(), LocalDateTime.now()).toMinutes()>5){
-//            throw new BadRequestException(1400, "code time out");
             return TemplateSendMail.getError("Authentication timeout. Please register again!", "http://localhost:3000/react/register", "Register");
         }
         if (user == null) {
