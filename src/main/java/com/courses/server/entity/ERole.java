@@ -9,5 +9,6 @@ public enum ERole {
     ROLE_TRAINEE,
     ROLE_GUEST,
     ROLE_EXPERT,
+    ROLE_TRAINER,
 }
 
