@@ -4,6 +4,7 @@ import com.courses.server.dto.request.ManagerSubjectRequest;
 import com.courses.server.dto.request.SubjectRequest;
 import com.courses.server.entity.Subject;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -12,9 +13,9 @@ public interface SubjectService {
 
     Subject getSubjectByCode(String username, Long id);
 
-    void addSubject(SubjectRequest subjectRequest);
+    void addSubject(SubjectRequest subjectRequest, MultipartFile image);
 
-    void updateSubject(Long id, SubjectRequest subjectRequest);
+    void updateSubject(Long id, SubjectRequest subjectRequest, MultipartFile image);
 
     void managerUpdateSubject(ManagerSubjectRequest subjectRequest);
 

@@ -12,5 +12,5 @@ public class SubjectRequest {
     private String note;
     private String manager;
     private String expert;
-    private MultipartFile image;
+//    private MultipartFile image;
 }

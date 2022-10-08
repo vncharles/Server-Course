@@ -14,6 +14,7 @@ import com.courses.server.services.FileService;
 import com.courses.server.services.SubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -61,7 +62,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void addSubject(SubjectRequest subjectRequest) {
+    public void addSubject(SubjectRequest subjectRequest, MultipartFile image) {
 //        System.out.println("Subject request service: " + subjectRequest);
         if(subjectRequest.getCode()==null || subjectRequest.getName()==null)
             throw new BadRequestException(400, "Please enter enough information!!");
@@ -75,8 +76,8 @@ public class SubjectServiceImpl implements SubjectService {
         subject.setStatus(subjectRequest.isStatus());
         subject.setNote(subjectRequest.getNote());
 
-        if(subjectRequest.getImage()!=null) {
-            String fileName = fileService.storeFile(subjectRequest.getImage());
+        if(image!=null) {
+            String fileName = fileService.storeFile(image);
             subject.setImage(fileName);
         }
 
@@ -101,7 +102,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void updateSubject(Long id, SubjectRequest subjectRequest) {
+    public void updateSubject(Long id, SubjectRequest subjectRequest, MultipartFile image) {
         Subject subject = subjectRepository.findById(id).get();
         if(null==subject){
             throw new NotFoundException(404, "Subject is not found!!!");
@@ -118,8 +119,8 @@ public class SubjectServiceImpl implements SubjectService {
 
         subject.setStatus(subjectRequest.isStatus());
 
-        if(subjectRequest.getImage()!=null){
-            String fileName = fileService.storeFile(subjectRequest.getImage());
+        if(image!=null){
+            String fileName = fileService.storeFile(image);
             subject.setImage(fileName);
         }
 

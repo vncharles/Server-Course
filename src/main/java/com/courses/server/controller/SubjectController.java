@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,17 +78,19 @@ public class SubjectController {
 
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createSubject(@RequestBody SubjectRequest subjectRequest) {
+    public ResponseEntity<?> createSubject(@RequestBody SubjectRequest subjectRequest,
+                                           @RequestParam("image") MultipartFile image) {
 //        System.out.println("Subject request: " + subjectRequest);
-        subjectService.addSubject(subjectRequest);
+        subjectService.addSubject(subjectRequest, image);
 
         return ResponseEntity.ok(new MessageResponse("Crete subject success!"));
     }
 
     @PutMapping("/update")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    public ResponseEntity<?> updateSubject(@Param("id")Long id, @RequestBody SubjectRequest subjectRequest) {
-        subjectService.updateSubject(id, subjectRequest);
+    public ResponseEntity<?> updateSubject(@Param("id")Long id, @RequestBody SubjectRequest subjectRequest,
+                                           @RequestParam("image") MultipartFile image) {
+        subjectService.updateSubject(id, subjectRequest, image);
         return ResponseEntity.ok(new MessageResponse("Update subject success!"));
     }
 
