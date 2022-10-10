@@ -10,6 +10,9 @@ import com.courses.server.services.ClassService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -27,8 +30,10 @@ public class ClassServiceImpl implements ClassService {
         Class _class = new Class();
 
         Random rand = new Random();
-        String code = "IS" + new Date() +  String.format("%04d", rand.nextInt(10000));
-        System.out.println("Code: " + code);
+        String date = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
+        String code = "IS" + date +  String.format("%04d", rand.nextInt(10000));
+
+//        System.out.println("Code: " + code);
         _class.setCode(code);
         _class.setPackages(classRequest.getPackages());
         _class.setDateFrom(classRequest.getDateFrom());

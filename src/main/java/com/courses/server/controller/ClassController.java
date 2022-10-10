@@ -27,7 +27,7 @@ public class ClassController {
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_TRAINER')")
-    public ResponseEntity<?> getAllClass(@RequestParam("package")String packages){
+        public ResponseEntity<?> getAllClass(@RequestParam("package")String packages){
         Authen.check();
         List<Class> classList = classService.getAllClass();
 

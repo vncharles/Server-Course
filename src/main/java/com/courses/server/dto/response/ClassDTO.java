@@ -8,6 +8,7 @@ import java.util.Date;
 
 @Getter @Setter
 public class ClassDTO {
+    private Long id;
     private String code;
     private Date dateFrom;
     private Date dateTo;
@@ -16,11 +17,12 @@ public class ClassDTO {
     private UserDTO trainer;
 
     public ClassDTO(Class _class) {
+        this.id = _class.getId();
         this.packages = _class.getPackages();
         this.code = _class.getCode();
         this.dateFrom = _class.getDateFrom();
         this.dateTo = _class.getDateTo();
         this.status = _class.isStatus();
-        this.trainer = new UserDTO(_class.getTrainer());
+        this.trainer = _class.getTrainer() != null ? new UserDTO(_class.getTrainer()) : null;
     }
 }
