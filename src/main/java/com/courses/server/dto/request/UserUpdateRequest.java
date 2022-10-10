@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 @Data @AllArgsConstructor @NoArgsConstructor
 public class UserUpdateRequest {
-    private Long id;
     private String username;
     private String password;
     private String fullname;

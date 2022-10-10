@@ -27,13 +27,21 @@ public class ClassController {
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_TRAINER')")
-    public ResponseEntity<?> getAllClass(){
+    public ResponseEntity<?> getAllClass(@RequestParam("package")String packages){
         Authen.check();
         List<Class> classList = classService.getAllClass();
 
         List<ClassDTO> classDTOList = new ArrayList<>();
-        for(Class _class: classList) {
-            classDTOList.add(new ClassDTO(_class));
+        if(packages!=null || packages!=""){
+            for(Class _class: classList) {
+                if(_class.getPackages().contains(packages)) {
+                    classDTOList.add(new ClassDTO(_class));
+                }
+            }
+        } else {
+            for (Class _class : classList) {
+                classDTOList.add(new ClassDTO(_class));
+            }
         }
 
         return ResponseEntity.ok(classDTOList);

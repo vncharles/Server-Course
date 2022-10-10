@@ -13,9 +13,9 @@ public interface SubjectService {
 
     Subject getSubjectByCode(String username, Long id);
 
-    void addSubject(SubjectRequest subjectRequest, MultipartFile image);
+    void addSubject(SubjectRequest subjectRequest);
 
-    void updateSubject(Long id, SubjectRequest subjectRequest, MultipartFile image);
+    void updateSubject(Long id, SubjectRequest subjectRequest);
 
     void managerUpdateSubject(ManagerSubjectRequest subjectRequest);
 

@@ -8,6 +8,7 @@ import com.courses.server.entity.ERole;
 import com.courses.server.entity.User;
 import com.courses.server.repositories.UserRepository;
 import com.courses.server.services.UserService;
+import com.courses.server.utils.Authen;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -83,22 +84,24 @@ public class AdminAccountController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
+        Authen.check();
+
         userService.updateActive(username, activeUserDTO);
 
         return ResponseEntity.ok(new MessageResponse("Update status user success"));
     }
 
-    @PostMapping("/detail")
+    @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> findUserByUsername(@Validated @RequestBody Map<String, String> username) throws IOException {
-        User user = userRepository.findByUsername(username.get("username"));
+    public ResponseEntity<?> findUserByUsername(@Validated @PathVariable("id")Long id) throws IOException {
+        User user = userRepository.findById(id).get();
         return ResponseEntity.ok(new UserDTO(user));
     }
 
     @PostMapping("/update-user")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> updateUser(@RequestBody UserUpdateRequest userUpdate) {
-        userService.updateUser(null, userUpdate);
+    public ResponseEntity<?> updateUser(@RequestParam("id")Long id, @RequestBody UserUpdateRequest userUpdate) {
+        userService.updateUser(id, null, userUpdate);
         return ResponseEntity.ok(new MessageResponse("Update user success"));
     }
 }

@@ -62,7 +62,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void addSubject(SubjectRequest subjectRequest, MultipartFile image) {
+    public void addSubject(SubjectRequest subjectRequest) {
 //        System.out.println("Subject request service: " + subjectRequest);
         if(subjectRequest.getCode()==null || subjectRequest.getName()==null)
             throw new BadRequestException(400, "Please enter enough information!!");
@@ -75,11 +75,6 @@ public class SubjectServiceImpl implements SubjectService {
         subject.setPrice(subjectRequest.getPrice());
         subject.setStatus(subjectRequest.isStatus());
         subject.setNote(subjectRequest.getNote());
-
-        if(image!=null) {
-            String fileName = fileService.storeFile(image);
-            subject.setImage(fileName);
-        }
 
         if(subjectRequest.getManager()!=null){
             User manager = userRepository.findByUsername(subjectRequest.getManager());
@@ -102,7 +97,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void updateSubject(Long id, SubjectRequest subjectRequest, MultipartFile image) {
+    public void updateSubject(Long id, SubjectRequest subjectRequest) {
         Subject subject = subjectRepository.findById(id).get();
         if(null==subject){
             throw new NotFoundException(404, "Subject is not found!!!");
@@ -118,11 +113,6 @@ public class SubjectServiceImpl implements SubjectService {
             subject.setNote(subjectRequest.getNote());
 
         subject.setStatus(subjectRequest.isStatus());
-
-        if(image!=null){
-            String fileName = fileService.storeFile(image);
-            subject.setImage(fileName);
-        }
 
         if(subjectRequest.getManager()!=null){
             User manager = userRepository.findByUsername(subjectRequest.getManager());

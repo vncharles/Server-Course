@@ -28,7 +28,7 @@ public class ClassServiceImpl implements ClassService {
 
         Random rand = new Random();
         String code = "IS" + new Date() +  String.format("%04d", rand.nextInt(10000));
-
+        System.out.println("Code: " + code);
         _class.setCode(code);
         _class.setPackages(classRequest.getPackages());
         _class.setDateFrom(classRequest.getDateFrom());

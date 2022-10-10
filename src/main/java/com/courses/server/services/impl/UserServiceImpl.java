@@ -215,12 +215,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(String username, UserUpdateRequest updateDTO) {
-        if(!userRepository.existsById(updateDTO.getId())) {
+    public void updateUser(Long id, String username, UserUpdateRequest updateDTO) {
+        if(!userRepository.existsById(id)) {
             throw new BadRequestException(1302, "User has not found");
         }
 
-        User user = userRepository.findById(updateDTO.getId()).get();
+        User user = userRepository.findById(id).get();
 
         if(username!=null){
             if(user.getId() != userRepository.findByUsername(username).getId()){

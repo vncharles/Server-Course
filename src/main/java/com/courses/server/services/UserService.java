@@ -33,7 +33,7 @@ public interface UserService {
 
     void updateRole(RoleRequest roleDTO);
 
-    void updateUser(String username, UserUpdateRequest user);
+    void updateUser(Long id, String username, UserUpdateRequest user);
 
     User getUserDetail(String username);
 

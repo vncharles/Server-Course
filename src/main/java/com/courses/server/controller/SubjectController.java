@@ -78,19 +78,17 @@ public class SubjectController {
 
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createSubject(@RequestBody SubjectRequest subjectRequest,
-                                           @RequestParam("image") MultipartFile image) {
-//        System.out.println("Subject request: " + subjectRequest);
-        subjectService.addSubject(subjectRequest, image);
+    public ResponseEntity<?> createSubject(@RequestBody SubjectRequest subjectRequeste) {
+        subjectService.addSubject(subjectRequeste);
 
         return ResponseEntity.ok(new MessageResponse("Crete subject success!"));
     }
 
     @PutMapping("/update")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    public ResponseEntity<?> updateSubject(@Param("id")Long id, @RequestBody SubjectRequest subjectRequest,
-                                           @RequestParam("image") MultipartFile image) {
-        subjectService.updateSubject(id, subjectRequest, image);
+    public ResponseEntity<?> updateSubject(@Param("id")Long id, @RequestBody SubjectRequest subjectRequest) {
+        subjectService.updateSubject(id, subjectRequest);
+
         return ResponseEntity.ok(new MessageResponse("Update subject success!"));
     }
 
@@ -98,6 +96,7 @@ public class SubjectController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<?> managerUpdateSubject(@RequestBody ManagerSubjectRequest subjectRequest) {
         subjectService.managerUpdateSubject(subjectRequest);
+
         return ResponseEntity.ok(new MessageResponse("Update subject success!"));
     }
 }

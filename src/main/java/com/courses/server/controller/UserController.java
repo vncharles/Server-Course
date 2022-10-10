@@ -36,14 +36,14 @@ public class UserController {
     private FileService fileService;
 
     @PutMapping("/update-info")
-    public ResponseEntity<?> updateInfo(@RequestBody UserUpdateRequest updateDTO) {
+    public ResponseEntity<?> updateInfo(@RequestParam("id")Long id, @RequestBody UserUpdateRequest updateDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         if(username == null || username.equals("anonymousUser")){
             throw new BadRequestException(1302, "User has not login");
         }
 
-        userService.updateUser(username, updateDTO);
+        userService.updateUser(id, username, updateDTO);
         return ResponseEntity.ok(new MessageResponse("Update info success"));
     }
 
