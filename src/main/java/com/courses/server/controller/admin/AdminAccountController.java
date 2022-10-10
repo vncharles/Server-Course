@@ -10,6 +10,7 @@ import com.courses.server.repositories.UserRepository;
 import com.courses.server.services.UserService;
 import com.courses.server.utils.Authen;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -33,12 +34,40 @@ public class AdminAccountController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getAllUser() throws IOException {
+    public ResponseEntity<?> getAllUser(@Param("name")String name,
+                                        @Param("email")String email,
+                                        @Param("phone")String phone) throws IOException {
         List<User> users = userService.getListUser();
+
         List<UserDTO> userDTOList = new ArrayList<>();
+
         for(User user: users) {
             userDTOList.add(new UserDTO(user));
         }
+
+        if(name!=null){
+            for(UserDTO user: userDTOList) {
+                if(!user.getFullname().contains(name)){
+                    userDTOList.remove(user);
+                }
+            }
+        }
+        if(email!=null){
+            for(UserDTO user: userDTOList) {
+                if(!user.getEmail().contains(email)){
+                    userDTOList.remove(user);
+                }
+            }
+        }
+        if(phone!=null){
+            for(UserDTO user: userDTOList) {
+                if(!user.getPhoneNumber().contains(phone)){
+                    userDTOList.remove(user);
+                }
+            }
+        }
+
+
         return ResponseEntity.ok(userDTOList);
     }
 
