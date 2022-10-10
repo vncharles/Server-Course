@@ -7,6 +7,7 @@ import com.courses.server.entity.Class;
 import com.courses.server.services.ClassService;
 import com.courses.server.utils.Authen;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -27,12 +28,12 @@ public class ClassController {
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_TRAINER')")
-        public ResponseEntity<?> getAllClass(@RequestParam("package")String packages){
+        public ResponseEntity<?> getAllClass(@Param("package") String packages){
         Authen.check();
         List<Class> classList = classService.getAllClass();
 
         List<ClassDTO> classDTOList = new ArrayList<>();
-        if(packages!=null || packages!=""){
+        if(packages!=null){
             for(Class _class: classList) {
                 if(_class.getPackages().contains(packages)) {
                     classDTOList.add(new ClassDTO(_class));
