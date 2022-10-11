@@ -52,6 +52,17 @@ public class User extends BaseDomain{
     }
 
     public User() {
-        active = false;
+        this.email = null;
+        this.username = null;
+        this.password = null;
+        this.fullname = null;
+        this.phoneNumber = null;
+        this.avatar = null;
+        this.active = false;
+        this.registerToken = null;
+        this.timeRegisterToken = null;
+        this.resetPasswordToken = null;
+        this.type_account = null;
+        this.role = null;
     }
 }

@@ -39,36 +39,64 @@ public class AdminAccountController {
                                         @Param("phone")String phone) throws IOException {
         List<User> users = userService.getListUser();
 
+//        if(name!=null){
+//            for(User user: users) {
+//                if(user.getFullname()!=null)
+//                    if(!user.getFullname().contains(name))
+//                        users.remove(user);
+//            }
+//        }
+//        if(email!=null){
+//            for(User user: users) {
+//                if(user.getEmail()!=null)
+//                    if(!user.getEmail().contains(email))
+//                        users.remove(user);
+//            }
+//        }
+//        if(phone!=null){
+//            for(User user: users) {
+//                if(user.getPhoneNumber()!=null)
+//                    if(!user.getPhoneNumber().contains(phone))
+//                        users.remove(user);
+//            }
+//        }
+
         List<UserDTO> userDTOList = new ArrayList<>();
 
         for(User user: users) {
-            userDTOList.add(new UserDTO(user));
+            if(user!=null)
+                userDTOList.add(new UserDTO(user));
         }
 
+        List<UserDTO> listUserByName = new ArrayList<>();
         if(name!=null){
             for(UserDTO user: userDTOList) {
-                if(!user.getFullname().contains(name)){
-                    userDTOList.remove(user);
-                }
+                if(user.getFullname()!=null)
+                    if(user.getFullname().contains(name))
+                        listUserByName.add(user);
             }
-        }
+        } else listUserByName = userDTOList;
+
+        List<UserDTO> listUserByEmail = new ArrayList<>();
         if(email!=null){
-            for(UserDTO user: userDTOList) {
-                if(!user.getEmail().contains(email)){
-                    userDTOList.remove(user);
-                }
+            for(UserDTO user: listUserByName) {
+                if(user.getEmail()!=null)
+                    if(user.getEmail().contains(email))
+                        listUserByEmail.add(user);
             }
-        }
+        } else listUserByEmail = listUserByName;
+
+        List<UserDTO> listUserByPhone = new ArrayList<>();
         if(phone!=null){
-            for(UserDTO user: userDTOList) {
-                if(!user.getPhoneNumber().contains(phone)){
-                    userDTOList.remove(user);
-                }
+            for(UserDTO user: listUserByEmail) {
+                if(user.getPhoneNumber()!=null)
+                    if(user.getPhoneNumber().contains(phone))
+                        listUserByPhone.add(user);
             }
-        }
+        } else listUserByPhone = listUserByEmail;
 
 
-        return ResponseEntity.ok(userDTOList);
+        return ResponseEntity.ok(listUserByPhone);
     }
 
     @GetMapping("/manager-list")
