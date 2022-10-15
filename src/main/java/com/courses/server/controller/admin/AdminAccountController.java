@@ -5,7 +5,10 @@ import com.courses.server.dto.request.UpdateActiveUserRequest;
 import com.courses.server.dto.request.UserUpdateRequest;
 import com.courses.server.dto.response.UserDTO;
 import com.courses.server.entity.ERole;
+import com.courses.server.entity.Role;
 import com.courses.server.entity.User;
+import com.courses.server.exceptions.NotFoundException;
+import com.courses.server.repositories.RoleRepository;
 import com.courses.server.repositories.UserRepository;
 import com.courses.server.services.UserService;
 import com.courses.server.utils.Authen;
@@ -21,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -32,34 +34,16 @@ public class AdminAccountController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getAllUser(@Param("name")String name,
-                                        @Param("email")String email,
-                                        @Param("phone")String phone) throws IOException {
+    public ResponseEntity<?> getAllUser(@Param("role") ERole role,
+                                        @Param("status")Boolean status,
+                                        @Param("name")String name,
+                                        @Param("size")Integer size) throws IOException {
         List<User> users = userService.getListUser();
-
-//        if(name!=null){
-//            for(User user: users) {
-//                if(user.getFullname()!=null)
-//                    if(!user.getFullname().contains(name))
-//                        users.remove(user);
-//            }
-//        }
-//        if(email!=null){
-//            for(User user: users) {
-//                if(user.getEmail()!=null)
-//                    if(!user.getEmail().contains(email))
-//                        users.remove(user);
-//            }
-//        }
-//        if(phone!=null){
-//            for(User user: users) {
-//                if(user.getPhoneNumber()!=null)
-//                    if(!user.getPhoneNumber().contains(phone))
-//                        users.remove(user);
-//            }
-//        }
 
         List<UserDTO> userDTOList = new ArrayList<>();
 
@@ -68,35 +52,41 @@ public class AdminAccountController {
                 userDTOList.add(new UserDTO(user));
         }
 
+        List<UserDTO> listUserByRole = new ArrayList<>();
+        if(role!=null && roleRepository.findByName(role)!=null){
+            ERole eRole = roleRepository.findByName(role).get().getName();
+            for(UserDTO user: userDTOList) {
+                if(user.getRole().name().equals(eRole.name()))
+                    listUserByRole.add(user);
+            }
+        } else listUserByRole = userDTOList;
+
+        List<UserDTO> listUserByStatus = new ArrayList<>();
+        if(status!=null){
+            for(UserDTO user: listUserByRole) {
+                if(user.isActive()==status.booleanValue())
+                    listUserByStatus.add(user);
+            }
+        } else listUserByStatus = listUserByRole;
+
         List<UserDTO> listUserByName = new ArrayList<>();
         if(name!=null){
-            for(UserDTO user: userDTOList) {
+            for(UserDTO user: listUserByStatus) {
                 if(user.getFullname()!=null)
                     if(user.getFullname().contains(name))
                         listUserByName.add(user);
             }
-        } else listUserByName = userDTOList;
+        } else listUserByName = listUserByStatus;
 
-        List<UserDTO> listUserByEmail = new ArrayList<>();
-        if(email!=null){
-            for(UserDTO user: listUserByName) {
-                if(user.getEmail()!=null)
-                    if(user.getEmail().contains(email))
-                        listUserByEmail.add(user);
+        List<UserDTO> listFinal = new ArrayList<>();
+        System.out.println("Size: " + size);
+        if(size!=null && size.intValue() <= listUserByName.size()){
+            for(int i = 0; i < size.intValue(); i++) {
+                listFinal.add(listUserByName.get(i));
             }
-        } else listUserByEmail = listUserByName;
+        } else  listFinal = listUserByName;
 
-        List<UserDTO> listUserByPhone = new ArrayList<>();
-        if(phone!=null){
-            for(UserDTO user: listUserByEmail) {
-                if(user.getPhoneNumber()!=null)
-                    if(user.getPhoneNumber().contains(phone))
-                        listUserByPhone.add(user);
-            }
-        } else listUserByPhone = listUserByEmail;
-
-
-        return ResponseEntity.ok(listUserByPhone);
+        return ResponseEntity.ok(listFinal);
     }
 
     @GetMapping("/manager-list")
@@ -150,8 +140,11 @@ public class AdminAccountController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> findUserByUsername(@Validated @PathVariable("id")Long id) throws IOException {
-        User user = userRepository.findById(id).get();
+    public ResponseEntity<?> findUserByUsername(@PathVariable("id")Long id) throws IOException {
+        User user = userRepository.findById(id).isPresent() ? userRepository.findById(id).get() : null;
+        if(user==null){
+            throw new NotFoundException(404, "ID not found user");
+        }
         return ResponseEntity.ok(new UserDTO(user));
     }
 

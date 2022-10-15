@@ -37,4 +37,15 @@ public class UserDTO {
         this.active = user.isActive();
         this.avatar = "http://localhost:8080/api/account/downloadFile/" + user.getAvatar();
     }
+
+    public UserDTO(User user, String domain) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.email = user.getEmail() != null ? user.getEmail() : "";
+        this.fullname = user.getFullname() != null ? user.getFullname() : "";
+        this.phoneNumber = user.getPhoneNumber() != null ? user.getPhoneNumber() : "";
+        this.role = user.getRole().getName();
+        this.active = user.isActive();
+        this.avatar = domain + "/api/account/downloadFile/" + user.getAvatar();
+    }
 }

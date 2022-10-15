@@ -12,5 +12,4 @@ public class WebContactRequest {
     private String email;
     private String phoneNumber;
     private String message;
-    private String address;
 }

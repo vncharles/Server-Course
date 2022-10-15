@@ -28,7 +28,6 @@ public class WebContactServiceImpl implements WebContactService {
                 webContactRequest.getFullName(),
                 webContactRequest.getEmail(),
                 webContactRequest.getPhoneNumber(),
-                webContactRequest.getAddress(),
                 webContactRequest.getMessage(),
                 false
         );
@@ -63,8 +62,6 @@ public class WebContactServiceImpl implements WebContactService {
             webContact.setPhoneNumber(webContactRequest.getPhoneNumber());
         if(webContactRequest.getMessage()!=null)
             webContact.setMessage(webContactRequest.getMessage());
-        if(webContactRequest.getAddress()!=null)
-            webContact.setAddress(webContactRequest.getAddress());
         webContact.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
 
         webContactRepository.save(webContact);

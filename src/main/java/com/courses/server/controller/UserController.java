@@ -59,12 +59,14 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public ResponseEntity<UserDTO> userDetail() throws IOException {
+    public ResponseEntity<UserDTO> userDetail(HttpServletRequest request) throws IOException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
         User user = userService.getUserDetail(username);
-        UserDTO userResponse = new UserDTO(user);
+
+        String domain = Utility.getSiteURL(request);
+        UserDTO userResponse = new UserDTO(user, domain);
 
         return ResponseEntity.ok(userResponse);
     }
