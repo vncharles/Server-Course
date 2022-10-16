@@ -41,9 +41,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Validated @RequestBody Map<String, String> login) {
-        String username = login.get("username");
+        String email = login.get("email");
         String password = login.get("password");
-        return ResponseEntity.ok(userService.loginAccount(username, password));
+        return ResponseEntity.ok(userService.loginAccount(email, password));
     }
 
     @PostMapping("/register")

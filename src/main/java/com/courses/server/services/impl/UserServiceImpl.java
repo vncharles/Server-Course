@@ -124,14 +124,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public JwtResponse loginAccount(String username, String password) {
-        if(!userRepository.existsByUsername(username)){
+    public JwtResponse loginAccount(String email, String password) {
+        if(!userRepository.existsByEmail(email)){
             throw new NotFoundException(1002, "username has not existed");
         }
 
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, password));
+                    new UsernamePasswordAuthenticationToken(email, password));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 

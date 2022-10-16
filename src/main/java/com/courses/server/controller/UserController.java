@@ -9,6 +9,7 @@ import com.courses.server.exceptions.BadRequestException;
 import com.courses.server.services.FileService;
 import com.courses.server.services.UserService;
 import com.courses.server.services.impl.EmailSenderService;
+import com.courses.server.utils.Authen;
 import com.courses.server.utils.TemplateSendMail;
 import com.courses.server.utils.Utility;
 import net.bytebuddy.utility.RandomString;
@@ -38,12 +39,9 @@ public class UserController {
     @PutMapping("/update-info")
     public ResponseEntity<?> updateInfo(@RequestParam("id")Long id, @RequestBody UserUpdateRequest updateDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        if(username == null || username.equals("anonymousUser")){
-            throw new BadRequestException(1302, "User has not login");
-        }
+        Authen.check();
 
-        userService.updateUser(id, username, updateDTO);
+        userService.updateUser(id, auth.getName(), updateDTO);
         return ResponseEntity.ok(new MessageResponse("Update info success"));
     }
 
