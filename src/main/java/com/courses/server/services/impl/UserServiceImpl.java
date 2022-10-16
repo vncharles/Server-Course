@@ -94,10 +94,14 @@ public class UserServiceImpl implements UserService {
 
         if(!userRepository.existsByEmail(registerDTO.getEmail())) {
             user = new User(registerDTO.getEmail(), registerDTO.getUsername(), encoder.encode(registerDTO.getPassword()), false);
+            if(registerDTO.getFullName()!=null) {
+                user.setFullname(registerDTO.getFullName());
+            }
         }  else {
             user = userRepository.findByEmail(registerDTO.getEmail());
             user.setUsername(registerDTO.getUsername());
             user.setPassword(encoder.encode(registerDTO.getPassword()));
+            user.setFullname(registerDTO.getFullName());
         }
 
         // Nếu user bth không có set role thì set thành ROLE_USER

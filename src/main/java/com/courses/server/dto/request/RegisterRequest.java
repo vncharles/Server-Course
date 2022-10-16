@@ -11,12 +11,15 @@ public class RegisterRequest {
     private String username;
     private String password;
     private String email;
+    private String fullName;
+
 
     public RegisterRequest(User user) {
         super();
         this.username = user.getUsername();
         this.password = user.getPassword();
         this.email = user.getEmail();
+        this.fullName = user.getFullname();
     }
 
     public RegisterRequest() {
