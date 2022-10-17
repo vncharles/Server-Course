@@ -33,7 +33,8 @@ public class ClassController {
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_TRAINER')")
-        public ResponseEntity<?> getAllClass(@Param("packages") String packages){
+        public ResponseEntity<?> getAllClass(@Param("status") Boolean status,
+                                             @Param("code") String code){
         Authen.check();
         List<Class> classList = classService.getAllClass();
 
@@ -43,30 +44,40 @@ public class ClassController {
             role = roleRepository.findByName(ERole.valueOf(rolee.getAuthority())).get();
         }
 
-        List<ClassDTO> classDTOList = new ArrayList<>();
-        if(packages!=null){
+        List<ClassDTO> classDTOStatus = new ArrayList<>();
+        if(status!=null){
             for(Class _class: classList) {
-                if(_class.getPackages()!=null)
-                    if(_class.getPackages().contains(packages)) {
-                        classDTOList.add(new ClassDTO(_class));
+                if(_class.isStatus() == status.booleanValue()) {
+                    classDTOStatus.add(new ClassDTO(_class));
                     }
             }
         } else {
-            for (Class _class : classList) {
-                classDTOList.add(new ClassDTO(_class));
+            for(Class _class: classList){
+                if(_class!=null){
+                    classDTOStatus.add(new ClassDTO(_class));
+                }
             }
         }
 
+        List<ClassDTO> classDTOCode = new ArrayList<>();
+        if(code!=null){
+            for(ClassDTO _class: classDTOStatus){
+                if(_class.getCode().contains(code)){
+                    classDTOCode.add(_class);
+                }
+            }
+        } else classDTOCode = classDTOStatus;
+
         List<ClassDTO> listFinal = new ArrayList<>();
         if(role.getName().equals(ERole.ROLE_TRAINER)) {
-            for(ClassDTO _class: classDTOList){
+            for(ClassDTO _class: classDTOCode){
                 if(_class.getTrainer()!=null) {
                     if(_class.getTrainer().getUsername().equals(auth.getName())) {
                         listFinal.add(_class);
                     }
                 }
             }
-        } else  listFinal = classDTOList;
+        } else  listFinal = classDTOCode;
 
         return ResponseEntity.ok(listFinal);
     }

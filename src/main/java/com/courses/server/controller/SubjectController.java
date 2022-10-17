@@ -27,42 +27,36 @@ public class SubjectController {
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
-    public ResponseEntity<?> allSubject(@Param("name")String name,
+    public ResponseEntity<?> allSubject(@Param("status")Boolean status,
                                         @Param("code") String code){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         List<Subject> subjectList = subjectService.getAllSubject(username);
-        if(null!=name || null!=code){
-            List<SubjectDTO> subjectName = new ArrayList<>();
-
-            if(name!=null) {
-                for (Subject subject : subjectList) {
-                    if (subject.getName().contains(name)) {
-                        subjectName.add(new SubjectDTO(subject));
-                    }
-                }
-            }
-
-            if(code!=null){
-                List<SubjectDTO> subjectCode = new ArrayList<>();
-                for (SubjectDTO subject : subjectName) {
-                    if (subject.getCode().contains(code)) {
-                        subjectCode.add(subject);
-                    }
-                }
-
-                return ResponseEntity.ok(subjectCode);
-            }
-
-            return ResponseEntity.ok(subjectName);
-        }
 
         List<SubjectDTO> subjectDTO = new ArrayList<>();
         for(Subject subject: subjectList){
             subjectDTO.add(new SubjectDTO(subject));
         }
 
-        return ResponseEntity.ok(subjectDTO);
+        List<SubjectDTO> subjectDTOStatus = new ArrayList<>();
+        if(status!=null){
+            for(SubjectDTO subject: subjectDTO){
+                if(subject.isStatus()==status.booleanValue()){
+                    subjectDTOStatus.add(subject);
+                }
+            }
+        } else subjectDTOStatus = subjectDTO;
+
+        List<SubjectDTO> subjectDTOCode = new ArrayList<>();
+        if(code!=null || code != ""){
+            for(SubjectDTO subject: subjectDTOStatus){
+                if(subject.getCode().contains(code)){
+                    subjectDTOCode.add(subject);
+                }
+            }
+        } else subjectDTOCode = subjectDTOStatus;
+
+        return ResponseEntity.ok(subjectDTOCode);
     }
 
     @GetMapping("/{id}")
