@@ -125,6 +125,18 @@ public class AdminAccountController {
         return ResponseEntity.ok(userDTOList);
     }
 
+    @GetMapping("/trainee-list")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPPORTER', 'ROLE_TRAINER')")
+    public ResponseEntity<?> getUserListTrainee() throws IOException, InterruptedException {
+        List<User> users = userService.getListUser();
+        List<UserDTO> userDTOList = new ArrayList<>();
+        for(User user: users) {
+            if(user.getRole().getName().equals(ERole.ROLE_TRAINEE) && user.isActive())
+                userDTOList.add(new UserDTO(user));
+        }
+        return ResponseEntity.ok(userDTOList);
+    }
+
     @PostMapping("/active")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateActiveUser(@Validated @RequestBody UpdateActiveUserRequest activeUserDTO) {
