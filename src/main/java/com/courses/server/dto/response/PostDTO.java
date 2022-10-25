@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class PostDTO {
+    private Long id;
     private String title;
     private String body;
     private UserDTO author;
@@ -12,6 +13,7 @@ public class PostDTO {
     private int status;
 
     public PostDTO(Post post) {
+        this.id = post.getId();
         this.title = post.getTitle();
         this.body = post.getBody();
         this.author = new UserDTO(post.getAuthor());
