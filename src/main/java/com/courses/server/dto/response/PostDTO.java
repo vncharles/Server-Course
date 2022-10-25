@@ -9,6 +9,7 @@ public class PostDTO {
     private String title;
     private String body;
     private UserDTO author;
+    private String createDate;
     private String thumnailUrl;
     private int status;
 
@@ -17,6 +18,7 @@ public class PostDTO {
         this.title = post.getTitle();
         this.body = post.getBody();
         this.author = new UserDTO(post.getAuthor());
+        this.createDate = post.getCreatedDate();
         this.thumnailUrl = post.getThumnailUrl();
         this.status = post.getStatus();
     }
