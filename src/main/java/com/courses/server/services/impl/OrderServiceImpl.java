@@ -1276,7 +1276,7 @@ public class OrderServiceImpl implements OrderService {
             if (op.get_package() != null) {
                 des += "\n     Khóa học: " + op.get_package().getTitle() + ", giá: " + op.getPackageCost() + " VNĐ";
             } else {
-                des += "\n     Combo: " + op.get_package().getTitle() + ", giá: " + op.getPackageCost() + " VNĐ";
+                des += "\n     Combo: " + op.get_combo().getTitle() + ", giá: " + op.getPackageCost() + " VNĐ";
             }
         }
         String subject = "Đăng ký  khóa học LRS education thành công";
