@@ -19,7 +19,7 @@ public class WebContactController {
     @PostMapping("/add")
     public ResponseEntity<?> addWebContact(@RequestBody WebContactRequest webContactRequest) {
         webContactService.addWebContact(webContactRequest);
-        return ResponseEntity.ok(new MessageResponse("Send web contact success"));
+        return ResponseEntity.ok(new MessageResponse("Gửi yêu cầu thành công"));
     }
 
 }

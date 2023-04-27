@@ -1,6 +1,5 @@
 package com.courses.server.dto.request;
 
-import com.courses.server.entity.ERole;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,9 +10,9 @@ import java.util.Set;
 @Setter
 public class RoleRequest {
     private String username;
-    private ERole role;
+    private String role;
 
-    public RoleRequest(String username, ERole role) {
+    public RoleRequest(String username, String role) {
         this.username = username;
         this.role = role;
     }

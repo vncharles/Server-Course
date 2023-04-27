@@ -8,6 +8,7 @@ public class Authen {
     public static void check(){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
+        System.out.println("Username: " + username);
         if(username == null || username.equals("anonymousUser")){
             throw new BadRequestException(1302, "User has not login");
         }

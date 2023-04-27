@@ -1,8 +1,5 @@
 package com.courses.server.entity;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -14,11 +11,9 @@ public abstract class BaseDomain {
     @Column(name="id", nullable=false, updatable=false)
     private Long id;
 
-    @CreationTimestamp
     @Column(name = "created_date")
     private String createdDate = new Timestamp(new Date().getTime()).toString();
 
-    @UpdateTimestamp
     @Column(name = "updated_date")
     private String updatedDate = new Timestamp(new Date().getTime()).toString();
 

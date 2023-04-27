@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 public class UserUpdateRequest {
     private String username;
     private String password;
+    private String oldPassword;
     private String fullname;
     private String phoneNumber;
+    private String note;
 }

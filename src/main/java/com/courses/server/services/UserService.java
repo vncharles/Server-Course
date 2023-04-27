@@ -1,21 +1,27 @@
 package com.courses.server.services;
 
-import com.courses.server.dto.request.UpdateActiveUserRequest;
-import com.courses.server.dto.request.UserUpdateRequest;
-import com.courses.server.dto.request.RegisterRequest;
-import com.courses.server.dto.request.RoleRequest;
+import com.courses.server.dto.request.*;
 import com.courses.server.dto.response.JwtResponse;
-import com.courses.server.dto.response.UserDTO;
+import com.courses.server.entity.Expert;
 import com.courses.server.entity.User;
+import com.courses.server.entity.UserPackage;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
-import java.util.List;
 
 @Service
 public interface UserService {
-    List<User> getListUser() throws IOException;
+    Page<User> getListUser(Pageable paging, Params params) throws IOException;
+
+    Page<User> getListManager(Pageable paging);
+
+    Page<Expert> getListExpert(Pageable paging);
+
+    Page<User> getListTrainer(Pageable paging);
+
+    Page<User> getListSupporter(Pageable paging);
 
     String createAccount(RegisterRequest registerDTO);
 
@@ -40,5 +46,11 @@ public interface UserService {
     void updateAvatar(String username, MultipartFile image) throws IOException;
 
     void updateActive(String username, UpdateActiveUserRequest activeUserDTO);
+
+    Page<UserPackage> listMyCourses(Pageable pageable);
+
+    UserPackage myCourseDetail(Long id);
+
+    void activeCourse(String code);
 
 }

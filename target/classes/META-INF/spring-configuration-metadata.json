@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "name": "file",
+      "type": "com.courses.server.config.FileStorageProperties",
+      "sourceType": "com.courses.server.config.FileStorageProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "file.upload-dir",
+      "type": "java.lang.String",
+      "sourceType": "com.courses.server.config.FileStorageProperties"
+    }
+  ],
+  "hints": []
+}

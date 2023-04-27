@@ -17,10 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -65,16 +61,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "http://app.trong-iuhcoder.tk"));
+        corsConfiguration.setAllowedOrigins(List.of("http://43.239.223.156:3600", "http://localhost:3000", "http://43.239.223.156", "https://fpt-lrs.online", "https://lms.nextin.com.vn"));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PUT","OPTIONS","PATCH", "DELETE"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setExposedHeaders(List.of("Authorization"));
 
         http.cors().configurationSource(request -> corsConfiguration).and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/admin/web-contact/").access("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPPORTER')")
-                .antMatchers("/api/role/**").access("hasRole('ROLE_ADMIN')")
-                .antMatchers("/api/**").permitAll()
+                // .antMatchers("/api/admin/web-contact/").access("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPPORTER')")
+                // .antMatchers("/api/admin/").access("hasAnyRole('ROLE_ADMIN')")
+                // .antMatchers("/api/role/**").access("hasRole('ROLE_ADMIN')")
+                // .antMatchers("/api/combo-package/**").access("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
+                .antMatchers("/**").permitAll()
                 .anyRequest().authenticated().and().exceptionHandling()
                 .authenticationEntryPoint(unauthorizedHandler).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

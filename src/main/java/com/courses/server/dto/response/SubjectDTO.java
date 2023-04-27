@@ -1,5 +1,5 @@
 package com.courses.server.dto.response;
-
+import com.courses.server.entity.Setting;
 import com.courses.server.entity.Subject;
 import lombok.Data;
 
@@ -8,25 +8,24 @@ public class SubjectDTO {
     private Long id;
     private String code;
     private String name;
-    private double price;
     private boolean status;
     private String note;
     private UserDTO manager;
-    private UserDTO expert;
-    private String image;
+    private ExpertDTO expert;
+    private Setting category;
 
     public SubjectDTO(Subject subject) {
         this.id = subject.getId();
         this.code = subject.getCode();
         this.name = subject.getName();
-        this.price = subject.getPrice();
         this.status = subject.isStatus();
         this.note = subject.getNote();
-        if(subject.getManager()!=null)
+        if (subject.getManager() != null) {
             this.manager = new UserDTO(subject.getManager());
-        if(subject.getExpert()!=null)
-            this.expert = new UserDTO(subject.getExpert());
-        if(subject.getImage()!=null)
-            this.image = "http://localhost:8080/api/account/downloadFile/" + subject.getImage();
+        }
+        if (subject.getExpert() != null) {
+            this.expert = new ExpertDTO(subject.getExpert());
+        }
+        this.category = subject.getCategory();
     }
 }

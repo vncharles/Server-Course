@@ -2,21 +2,18 @@ package com.courses.server.controller;
 
 import com.courses.server.config.GooglePojo;
 import com.courses.server.dto.response.JwtResponse;
-import com.courses.server.entity.ERole;
 import com.courses.server.entity.ETypeAccount;
-import com.courses.server.entity.Role;
+import com.courses.server.entity.Setting;
 import com.courses.server.entity.User;
 import com.courses.server.exceptions.BadRequestException;
-import com.courses.server.repositories.RoleRepository;
+import com.courses.server.repositories.SettingRepository;
 import com.courses.server.repositories.UserRepository;
 import com.courses.server.security.jwt.JwtUtils;
 import com.courses.server.security.services.UserDetailsImpl;
 import com.courses.server.utils.GoogleUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,13 +25,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -50,7 +44,7 @@ public class AuthSocialController {
     private JwtUtils jwtUtils;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private SettingRepository settingRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -62,7 +56,7 @@ public class AuthSocialController {
     public JwtResponse loginGoogle(HttpServletRequest request) throws ClientProtocolException, IOException {
         String code = request.getParameter("code");
         if (code == null || code.isEmpty()) {
-            throw new BadRequestException(1402, "token wrong");
+            throw new BadRequestException(1402, "Sai mã token");
         }
 
         String[] chunks = code.split("\\.");
@@ -71,8 +65,6 @@ public class AuthSocialController {
         String header = new String(decoder.decode(chunks[0]));
         String payload = new String(decoder.decode(chunks[1]));
 
-        System.out.println("header: " + header);
-        System.out.println("payload: " + payload );
 
         ObjectMapper mapper = new ObjectMapper();
         String token = googleUtils.getToken(code);
@@ -98,8 +90,8 @@ public class AuthSocialController {
             user.setPassword(encoder.encode(googlePojo.getSocial_user_id()));
             user.setType_account(ETypeAccount.GOOGLE);
 
-            Role userRole = roleRepository.findByName(ERole.ROLE_GUEST)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+            Setting userRole = settingRepository.findByValueAndType("ROLE_GUEST", 1)
+                    .orElseThrow(() -> new RuntimeException("Error: Role  Không tồn tại"));
             user.setRole(userRole);
 
             userRepository.save(user);

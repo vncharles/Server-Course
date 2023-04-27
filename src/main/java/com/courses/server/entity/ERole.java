@@ -6,9 +6,8 @@ public enum ERole {
     ROLE_MANAGER,
     ROLE_SUPPORTER,
     ROLE_MARKETER,
-    ROLE_TRAINEE,
     ROLE_GUEST,
-    ROLE_EXPERT,
     ROLE_TRAINER,
+    ROLE_EXPERT
 }
 

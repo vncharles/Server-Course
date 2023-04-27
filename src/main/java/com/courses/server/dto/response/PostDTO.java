@@ -9,17 +9,23 @@ public class PostDTO {
     private String title;
     private String body;
     private UserDTO author;
-    private String createDate;
+    private String brefInfo;
     private String thumnailUrl;
     private int status;
+    private long views;
+    private String createDate;
+    private Long categoryId;
 
     public PostDTO(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.body = post.getBody();
         this.author = new UserDTO(post.getAuthor());
-        this.createDate = post.getCreatedDate();
+        this.brefInfo = post.getBrefInfo();
         this.thumnailUrl = post.getThumnailUrl();
         this.status = post.getStatus();
+        this.categoryId = post.getCategory().getSetting_id();
+        this.views = post.getViews();
+        this.createDate = post.getCreatedDate();
     }
 }

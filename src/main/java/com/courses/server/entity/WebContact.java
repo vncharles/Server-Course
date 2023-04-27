@@ -2,9 +2,7 @@ package com.courses.server.entity;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -14,7 +12,16 @@ public class WebContact extends BaseDomain {
     private String email;
     private String phoneNumber;
     private String message;
+    private String note;
     private boolean status;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "setting_id")
+    private Setting category;
+
+    @ManyToOne
+    @JoinColumn(name = "supporter_id", referencedColumnName = "id")
+    private User supporter;
 
     public WebContact(String fullName, String email, String phoneNumber, String message, boolean status) {
         this.fullName = fullName;

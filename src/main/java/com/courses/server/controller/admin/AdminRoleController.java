@@ -2,8 +2,8 @@ package com.courses.server.controller.admin;
 
 import com.courses.server.dto.MessageResponse;
 import com.courses.server.dto.request.RoleRequest;
-import com.courses.server.entity.Role;
-import com.courses.server.repositories.RoleRepository;
+import com.courses.server.entity.Setting;
+import com.courses.server.repositories.SettingRepository;
 import com.courses.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,17 +19,17 @@ public class AdminRoleController {
     private UserService userService;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private SettingRepository settingRepository ;
 
     @PostMapping("/update")
     public ResponseEntity<?> updateRole(@Validated @RequestBody RoleRequest roleDTO) {
         userService.updateRole(roleDTO);
-        return ResponseEntity.ok(new MessageResponse("Update role success"));
+        return ResponseEntity.ok(new MessageResponse("Cập nhật role thành công"));
     }
 
     @GetMapping("/roles")
-    public ResponseEntity<List<Role>> listRole() {
-        List<Role> roles = roleRepository.findAll();
+    public ResponseEntity<List<Setting>> listRole() {
+        List<Setting> roles = settingRepository.findByType(1);
         return ResponseEntity.ok(roles);
     }
 }

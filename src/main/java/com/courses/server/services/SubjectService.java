@@ -1,15 +1,19 @@
 package com.courses.server.services;
 
 import com.courses.server.dto.request.ManagerSubjectRequest;
+import com.courses.server.dto.request.Params;
 import com.courses.server.dto.request.SubjectRequest;
 import com.courses.server.entity.Subject;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface SubjectService {
-    List<Subject> getAllSubject(String username);
+    Page<Subject> getAllSubject(Pageable paging, Params params) throws IOException;
+
+    List<Subject> getAllActive();
 
     Subject getSubjectByCode(String username, Long id);
 

@@ -2,110 +2,116 @@ package com.courses.server.controller;
 
 import com.courses.server.dto.MessageResponse;
 import com.courses.server.dto.request.ClassRequest;
+import com.courses.server.dto.request.Params;
 import com.courses.server.dto.response.ClassDTO;
 import com.courses.server.entity.Class;
-import com.courses.server.entity.ERole;
-import com.courses.server.entity.Role;
-import com.courses.server.repositories.RoleRepository;
 import com.courses.server.services.ClassService;
 import com.courses.server.utils.Authen;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/class")
 public class ClassController {
-    @Autowired
-    private ClassService classService;
+	@Autowired
+	private ClassService classService;
 
-    @Autowired
-    private RoleRepository roleRepository;
+	@GetMapping("")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_SUPPORTER', 'ROLE_TRAINER')")
+	public ResponseEntity<?> getListClass(
+			@RequestParam(defaultValue = "0") int page,
+			@Param("keyword") String keyword, 
+			@Param("status") Boolean status, 
+			@Param("category") long category,
+			@RequestParam(defaultValue = "10") int size) throws IOException {
+		Authen.check();
+		Pageable paging = PageRequest.of(page, size);
 
-    @GetMapping("")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_TRAINER')")
-        public ResponseEntity<?> getAllClass(@Param("status") Boolean status,
-                                             @Param("code") String code){
-        Authen.check();
-        List<Class> classList = classService.getAllClass();
+		Params params = new Params();
+		params.setCategory(category);
+		params.setActive(status);
+		if (keyword != null && keyword.trim().length() != 0)
+			params.setKeyword(keyword);
+		else
+			params.setKeyword(null);
+		Page<Class> pageClass = classService.getAllClass(paging, params, false);
+		List<ClassDTO> listClassDTO = pageClass.getContent().stream().map(_class -> new ClassDTO(_class))
+				.collect(Collectors.toList());
+		Map<String, Object> response = new HashMap<>();
+		response.put("data", listClassDTO);
+		response.put("currentPage", pageClass.getNumber());
+		response.put("totalItems", pageClass.getTotalElements());
+		response.put("totalPages", pageClass.getTotalPages());
 
-        Role role = null;
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        for(GrantedAuthority rolee: auth.getAuthorities()){
-            role = roleRepository.findByName(ERole.valueOf(rolee.getAuthority())).get();
-        }
+		return ResponseEntity.ok(response);
+	}
 
-        List<ClassDTO> classDTOStatus = new ArrayList<>();
-        if(status!=null){
-            for(Class _class: classList) {
-                if(_class.isStatus() == status.booleanValue()) {
-                    classDTOStatus.add(new ClassDTO(_class));
-                    }
-            }
-        } else {
-            for(Class _class: classList){
-                if(_class!=null){
-                    classDTOStatus.add(new ClassDTO(_class));
-                }
-            }
-        }
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_SUPPORTER', 'ROLE_TRAINER')")
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getClassDetail(@PathVariable("id") Long id) {
+		Authen.check();
+		Class _class = classService.getClassDetail(id);
 
-        List<ClassDTO> classDTOCode = new ArrayList<>();
-        if(code!=null){
-            for(ClassDTO _class: classDTOStatus){
-                if(_class.getCode().contains(code)){
-                    classDTOCode.add(_class);
-                }
-            }
-        } else classDTOCode = classDTOStatus;
+		return ResponseEntity.ok(new ClassDTO(_class));
+	}
+	
+	@GetMapping("/views")
+	public ResponseEntity<?> getListClassView(
+			@RequestParam(defaultValue = "0") int page,
+			@Param("keyword") String keyword, 
+			@RequestParam(defaultValue = "0") long category,
+			@RequestParam(defaultValue = "10") int size) throws IOException {
+		Pageable paging = PageRequest.of(page, size);
 
-        List<ClassDTO> listFinal = new ArrayList<>();
-        if(role.getName().equals(ERole.ROLE_TRAINER)) {
-            for(ClassDTO _class: classDTOCode){
-                if(_class.getTrainer()!=null) {
-                    if(_class.getTrainer().getUsername().equals(auth.getName())) {
-                        listFinal.add(_class);
-                    }
-                }
-            }
-        } else  listFinal = classDTOCode;
+		Params params = new Params();
+		params.setCategory(category);
+		params.setActive(true);
+		if (keyword != null && keyword.trim().length() != 0)
+			params.setKeyword(keyword);
+		else
+			params.setKeyword(null);
+		Page<Class> pageClass = classService.getAllClass(paging, params, true);
+		List<ClassDTO> listClassDTO = pageClass.getContent().stream().map(_class -> new ClassDTO(_class))
+				.collect(Collectors.toList());
+		Map<String, Object> response = new HashMap<>();
+		response.put("data", listClassDTO);
+		response.put("currentPage", pageClass.getNumber());
+		response.put("totalItems", pageClass.getTotalElements());
+		response.put("totalPages", pageClass.getTotalPages());
 
-        return ResponseEntity.ok(listFinal);
-    }
+		return ResponseEntity.ok(response);
+	}
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_TRAINER')")
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getClassDetail(@PathVariable("id")Long id) {
-        Authen.check();
-        Class _class = classService.getClassDetail(id);
+	@GetMapping("/views/{id}")
+	public ResponseEntity<?> getClassDetailView(@PathVariable("id") Long id) {
+		Class _class = classService.getClassDetail(id);
+return ResponseEntity.ok(new ClassDTO(_class));
+	}
 
-        return ResponseEntity.ok(new ClassDTO(_class));
-    }
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_SUPPORTER')")
+	@PostMapping("/create")
+	public ResponseEntity<?> createClass(@RequestBody ClassRequest classRequest) {
+		Authen.check();
+		classService.addClass(classRequest);
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
-    @PostMapping("/create")
-    public ResponseEntity<?> createClass(@RequestBody ClassRequest classRequest) {
-        Authen.check();
-        classService.addClass(classRequest);
+		return ResponseEntity.ok(new MessageResponse("Tạo lớp học thành công"));
+	}
 
-        return ResponseEntity.ok(new MessageResponse("Create class success"));
-    }
+	@PostMapping("/update")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_SUPPORTER')")
+	public ResponseEntity<?> updateClass(@RequestParam("id") Long id, @RequestBody ClassRequest classRequest) {
+		Authen.check();
+		classService.updateCLass(id, classRequest);
 
-    @PostMapping("/update")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
-    public ResponseEntity<?> updateClass(@RequestParam("id") Long id, @RequestBody ClassRequest classRequest) {
-        Authen.check();
-        classService.updateCLass(id, classRequest);
-
-        return ResponseEntity.ok(new MessageResponse("Update class success"));
-    }
+		return ResponseEntity.ok(new MessageResponse("Cập nhật lớp học thành công"));
+	}
 }

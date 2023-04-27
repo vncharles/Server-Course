@@ -6,7 +6,8 @@ import lombok.Data;
 public class PostReq {
     private String title;
     private String body;
+    private String brefInfo;
     private Long authorId;
-    private String thumnailUrl;
     private int status;
+    private Long categoryId;
 }

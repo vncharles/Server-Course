@@ -11,26 +11,26 @@ import javax.persistence.ManyToOne;
 public class Subject extends BaseDomain{
     private String code;
     private String name;
-    private double price;
     private boolean status;
     private String note;
-    private String image;
 
     @ManyToOne
-    @JoinColumn(name = "manager_id")
+    @JoinColumn(name = "manager_id", referencedColumnName = "id")
     private User manager;
 
     @ManyToOne
-    @JoinColumn(name = "expert_id")
-    private User expert;
+    @JoinColumn(name = "expert_id", referencedColumnName = "id")
+    private Expert expert;
 
-    public Subject(String code, String name, double price, boolean status, String note, String image) {
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "setting_id")
+    private Setting category;
+
+    public Subject(String code, String name, boolean status, String note) {
         this.code = code;
         this.name = name;
-        this.price = price;
         this.status = status;
         this.note = note;
-        this.image = image;
     }
 
     public Subject() {

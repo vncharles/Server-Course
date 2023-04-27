@@ -1,26 +1,21 @@
 package com.courses.server.services.impl;
 
-import com.courses.server.dto.request.UpdateActiveUserRequest;
-import com.courses.server.dto.request.UserUpdateRequest;
-import com.courses.server.dto.request.RegisterRequest;
-import com.courses.server.dto.request.RoleRequest;
+import com.courses.server.dto.request.*;
 import com.courses.server.dto.response.JwtResponse;
-import com.courses.server.dto.response.UserDTO;
-import com.courses.server.entity.ERole;
-import com.courses.server.entity.Role;
-import com.courses.server.entity.User;
+import com.courses.server.entity.*;
 import com.courses.server.exceptions.BadRequestException;
 import com.courses.server.exceptions.ForbiddenException;
 import com.courses.server.exceptions.NotFoundException;
-import com.courses.server.repositories.RoleRepository;
-import com.courses.server.repositories.UserRepository;
+import com.courses.server.repositories.*;
 import com.courses.server.security.jwt.JwtUtils;
 import com.courses.server.security.services.UserDetailsImpl;
+import com.courses.server.services.ExpertService;
 import com.courses.server.services.FileService;
 import com.courses.server.services.UserService;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,258 +27,423 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-//    @Value("${avatar-file-upload-dir}")
-//    String path;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private SettingRepository settingRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+	@Autowired
+	private FileService fileService;
 
-    @Autowired
-    private FileService fileService;
+	@Autowired
+	private ExpertRepository expertRepository;
 
-    @Autowired
-    private PasswordEncoder encoder;
+	@Autowired
+	private ExpertService expertService;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+	@Autowired
+	private PasswordEncoder encoder;
 
-    @Autowired
-    private JwtUtils jwtUtils;
+	@Autowired
+	private AuthenticationManager authenticationManager;
 
-    @Override
-    public String createAccount(RegisterRequest registerDTO) {
-        if(registerDTO.getEmail()==null){
-            throw new BadRequestException(1200, "Email is required");
-        }
-        if(registerDTO.getUsername()==null){
-            throw new BadRequestException(1000, "Username is required");
-        }
-        if(registerDTO.getPassword()==null){
-            throw new BadRequestException(1100, "Password is required");
-        }
+	@Autowired
+	private JwtUtils jwtUtils;
 
-        User userCheckMail = userRepository.findByEmail(registerDTO.getEmail());
-        if(userCheckMail != null && userCheckMail.isActive()) {
-            throw new BadRequestException(1201, "Email has already existed");
-        } else if(!registerDTO.getEmail().toLowerCase().matches("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")){
-            throw new BadRequestException(1203, "Email invalid");
-        }
+	@Autowired
+	private UserPackageRepository userPackageRepository;
 
-        User userCheckUsername = userRepository.findByUsername(registerDTO.getUsername());
-        if(userCheckUsername != null && userCheckUsername.isActive()){
-            throw new BadRequestException(1001, "Username has already existed");
-        } else if(!registerDTO.getUsername().matches("^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$")){
-            throw new BadRequestException(1003, "Username invalid, username include letters and digits, at least 6, case-insensitive");
-        }
+	@Autowired
+	private OrderPackageRepository orderPackageRepository;
 
-        if(!registerDTO.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_])[A-Za-z\\d@$!%*?&_]{8,20}$")){
-            throw new BadRequestException(1101, "Password invalid, Password must be at least 8 characters with at least 1 special character 1 uppercase letter 1 lowercase letter and 1 number!");
-        }
+	@Override
+	public String createAccount(RegisterRequest registerDTO) {
+		if (registerDTO.getEmail() == null) {
+			throw new BadRequestException(1200, "Email is required");
+		}
+		if (registerDTO.getUsername() == null) {
+			throw new BadRequestException(1000, "Username is required");
+		}
+		if (registerDTO.getPassword() == null) {
+			throw new BadRequestException(1100, "Password is required");
+		}
+		if (registerDTO.getPhone() == null) {
+			throw new BadRequestException(1100, "Phone Number is required");
+		}
 
-        User user;
+		User user = userRepository.findByEmail(registerDTO.getEmail()).orElse(null);
+		if (user != null) {
+			throw new BadRequestException(1201, "Email has already existed");
+		} else if (!registerDTO.getEmail().toLowerCase().matches(
+				"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")) {
+			throw new BadRequestException(1203, "Email invalid");
+		}
 
-        if(!userRepository.existsByEmail(registerDTO.getEmail())) {
-            user = new User(registerDTO.getEmail(), registerDTO.getUsername(), encoder.encode(registerDTO.getPassword()), false);
-            if(registerDTO.getFullName()!=null) {
-                user.setFullname(registerDTO.getFullName());
-            }
-        }  else {
-            user = userRepository.findByEmail(registerDTO.getEmail());
-            user.setUsername(registerDTO.getUsername());
-            user.setPassword(encoder.encode(registerDTO.getPassword()));
-            user.setFullname(registerDTO.getFullName());
-        }
+		User userCheckUsername = userRepository.findByUsername(registerDTO.getUsername());
+		if (userCheckUsername != null) {
+			throw new BadRequestException(1001, "Username has already existed");
+		} else if (!registerDTO.getUsername().matches("^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$")) {
+			throw new BadRequestException(1003,
+					"Username invalid, username include letters and digits, at least 6, case-insensitive");
+		}
 
-        // Nếu user bth không có set role thì set thành ROLE_USER
-        Role userRole = roleRepository.findByName(ERole.ROLE_GUEST)
-                .orElseThrow(() -> new NotFoundException(404, "Error: Role is not found"));
+		if (!registerDTO.getPassword()
+				.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_])[A-Za-z\\d@$!%*?&_]{8,20}$")) {
+			throw new BadRequestException(1101,
+					"Password invalid, Password must be at least 8 characters with at least 1 special character 1 uppercase letter 1 lowercase letter and 1 number!");
+		}
 
-        user.setRole(userRole);
+		if (user == null) {
+			user = new User(registerDTO.getEmail(), registerDTO.getUsername(),
+					encoder.encode(registerDTO.getPassword()), registerDTO.getPhone(), false);
+			if (registerDTO.getFullName() != null) {
+				user.setFullname(registerDTO.getFullName());
+			}
+		} else {
+			user.setUsername(registerDTO.getUsername());
+			user.setPassword(encoder.encode(registerDTO.getPassword()));
+			user.setFullname(registerDTO.getFullName());
+		}
 
-        String token = RandomString.make(30);
+		// Nếu user bth không có set role thì set thành ROLE_USER
+		Setting userRole = settingRepository.findByValueAndType("ROLE_GUEST", 1)
+				.orElseThrow(() -> new NotFoundException(404, "Error: Role  Không tồn tại"));
 
-        user.setRegisterToken(token);
-        user.setTimeRegisterToken(LocalDateTime.now());
+		user.setRole(userRole);
 
-        userRepository.save(user);
+		String token = RandomString.make(30);
 
-        return user.getRegisterToken();
-    }
+		user.setRegisterToken(token);
+		user.setTimeRegisterToken(LocalDateTime.now());
 
-    @Override
-    public void verifyRegister(User user) {
-        user.setActive(true);
-        user.setRegisterToken(null);
-        userRepository.save(user);
-    }
+		userRepository.save(user);
 
-    @Override
-    public JwtResponse loginAccount(String email, String password) {
-        if(!userRepository.existsByEmail(email)){
-            throw new NotFoundException(1002, "username has not existed");
-        }
+		return user.getRegisterToken();
+	}
 
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(email, password));
+	@Override
+	public void verifyRegister(User user) {
+		user.setActive(true);
+		user.setRegisterToken(null);
+		userRepository.save(user);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+		// Trainee trainee = null;
+		// try {
+		// trainee = traineeRepository.findByUser(user);
+		// } catch (Exception ex) {ex.printStackTrace();}
+		// if (trainee!=null) {
+		// trainee.setStatus(true);
+		// traineeRepository.save(trainee);
+		// }
+	}
 
-            String jwt = jwtUtils.generateJwtToken(authentication);
+	@Override
+	public JwtResponse loginAccount(String email, String password) {
+		if (!userRepository.existsByUsername(email)) {
+			throw new NotFoundException(1002, "username has not existed");
+		}
 
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            List<String> roles = userDetails.getAuthorities().stream()
-                    .map(item -> item.getAuthority())
-                    .collect(Collectors.toList());
+		try {
+			Authentication authentication = authenticationManager
+					.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
-            return new JwtResponse(jwt,
-                    userDetails.getId(),
-                    userDetails.getUsername(),
-                    userDetails.getEmail(),
-                    roles);
-        } catch (Exception ex){
-            throw new BadRequestException(1102, "wrong password");
-        }
-    }
+			SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    public void updateResetPasswordToken(String token, String email) throws NotFoundException {
-        User customer = userRepository.findByEmail(email);
-        if (customer != null) {
-            customer.setResetPasswordToken(token);
-            userRepository.save(customer);
-        } else {
-            throw new BadRequestException(1202, "email has not existed");
-        }
-    }
+			String jwt = jwtUtils.generateJwtToken(authentication);
 
-    public User getByResetPasswordToken(String token) {
-        return userRepository.findByResetPasswordToken(token);
-    }
+			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+			List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+					.collect(Collectors.toList());
 
-    public void updatePassword(User customer, String newPassword) {
-        if(newPassword==null || newPassword==""){
-            throw new BadRequestException(1100, "password is required");
-        } else if(!newPassword.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_])[A-Za-z\\d@$!%*?&_]{8,20}$")){
-            throw new BadRequestException(1101, "password invalid, Password must be at least 8 characters with at least 1 special character 1 uppercase letter 1 lowercase letter and 1 number!");
-        }
+			return new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
+		} catch (Exception ex) {
+			throw new BadRequestException(1102, "wrong password");
+		}
+	}
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encodedPassword = passwordEncoder.encode(newPassword);
-        customer.setPassword(encodedPassword);
+	public void updateResetPasswordToken(String token, String email) throws NotFoundException {
+		User customer = userRepository.findByEmail(email).orElse(null);
+		if (customer != null) {
+			customer.setResetPasswordToken(token);
+			userRepository.save(customer);
+		} else {
+			throw new BadRequestException(1202, "email has not existed");
+		}
+	}
 
-        customer.setResetPasswordToken(null);
-        customer.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
+	public User getByResetPasswordToken(String token) {
+		return userRepository.findByResetPasswordToken(token);
+	}
 
-        userRepository.save(customer);
-    }
+	public void updatePassword(User customer, String newPassword) {
+		if (newPassword == null || newPassword == "") {
+			throw new BadRequestException(1100, "Vui lòng nhập mật khẩu");
+		} else if (!newPassword.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_])[A-Za-z\\d@$!%*?&_]{8,20}$")) {
+			throw new BadRequestException(1101,
+					"Sai định dạng mật khẩu vui lòng nhập ít nhất 8 kí tự có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 kí tự đặc biệt");
+		}
 
-    @Override
-    public User getByRegisterToken(String token) {
-        return userRepository.findByRegisterToken(token);
-    }
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String encodedPassword = passwordEncoder.encode(newPassword);
+		customer.setPassword(encodedPassword);
 
-    @Override
-    public List<User> getListUser() throws IOException {
-        return userRepository.findAll();
-    }
+		customer.setResetPasswordToken(null);
+		customer.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
 
-    @Override
-    public void updateRole(RoleRequest roleDTO) {
-        String username = roleDTO.getUsername();
-        ERole roles = roleDTO.getRole();
+		userRepository.save(customer);
+	}
 
-        if(!userRepository.existsByUsername(username)){
-            throw new NotFoundException(1002, "username has not existed");
-        }
+	@Override
+	public User getByRegisterToken(String token) {
+		return userRepository.findByRegisterToken(token);
+	}
 
-        User user = userRepository.findByUsername(username);
-        System.out.println("ROLE: " + roleDTO.getRole());
-        Role userRole = roleRepository.findByName(roleDTO.getRole())
-                .orElseThrow(() -> new NotFoundException(404, "Error: Role is not found"));
+	@Override
+	public Page<User> getListUser(Pageable paging, Params params) throws IOException {
+		if (params.getActive() == null && params.getCategory() == 0) {
+			if (params.getKeyword() == null) {
+				return userRepository.findAll(paging);
+			} else {
+				return userRepository.findAllByFullnameOrEmail(params.getKeyword(), paging);
+			}
+		} else {
+			if (params.getCategory() != 0 && params.getActive() == null) {
+				if (params.getKeyword() == null) {
+					return userRepository.findAllByRole(params.getCategory(), paging);
+				} else {
+					return userRepository.findAllByFullnameOrEmailAndRole(params.getKeyword(), params.getCategory(),
+							paging);
+				}
+			} else if (params.getCategory() == 0 && params.getActive() != null) {
+				if (params.getKeyword() == null) {
+					return userRepository.findAllByActive(params.getActive(), paging);
+				} else {
+					return userRepository.findAllByFullnameOrEmailAndActive(params.getKeyword(), params.getActive(),
+							paging);
+				}
+			} else {
+				if (params.getKeyword() == null) {
+					return userRepository.findAllByActiveAndRole(params.getActive(), params.getCategory(), paging);
+				} else {
+					return userRepository.findAllByActiveAndFullnameOrEmailAndRole(params.getKeyword(),
+							params.getActive(), params.getCategory(), paging);
+				}
 
-        user.setRole(userRole);
+			}
+		}
+	}
 
-        user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
+	@Override
+	public Page<User> getListManager(Pageable paging) {
+		Setting role = settingRepository.findByValueAndType("ROLE_MANAGER", 1).get();
+		return userRepository.findAllByRole(role.getSetting_id(), paging);
+	}
 
-        userRepository.save(user);
-    }
+	@Override
+	public Page<Expert> getListExpert(Pageable paging) {
+		return expertRepository.findAll(paging);
+	}
 
-    @Override
-    public void updateUser(Long id, String username, UserUpdateRequest updateDTO) {
-        if(!userRepository.existsById(id)) {
-            throw new BadRequestException(1302, "User has not found");
-        }
+	@Override
+	public Page<User> getListTrainer(Pageable paging) {
+		Setting role = settingRepository.findByValueAndType("ROLE_TRAINER", 1).get();
+		return userRepository.findAllByRole(role.getSetting_id(), paging);
+	}
 
-        User user = userRepository.findById(id).get();
+	@Override
+	public Page<User> getListSupporter(Pageable paging) {
+		Setting role = settingRepository.findByValueAndType("ROLE_SUPPORTER", 1).get();
+		return userRepository.findAllByRole(role.getSetting_id(), paging);
+	}
 
-        if(username!=null){
-            if(user.getId() != userRepository.findByUsername(username).getId()){
-                throw new ForbiddenException(403, "Error forbidden!");
-            }
-        }
+	@Override
+	public void updateRole(RoleRequest roleDTO) {
+		String username = roleDTO.getUsername();
 
-        if(updateDTO.getUsername()!=null){
-            if(userRepository.existsByUsername(updateDTO.getUsername())){
-                throw new BadRequestException(1001, "username has already existed");
-            }
-            user.setUsername(updateDTO.getUsername());
-        }
-        if(updateDTO.getPhoneNumber()!=null)
-            user.setPhoneNumber(updateDTO.getPhoneNumber());
-        if(updateDTO.getFullname()!=null)
-            user.setFullname(updateDTO.getFullname());
-        if(updateDTO.getPassword()!=null)
-            user.setPassword(encoder.encode(updateDTO.getPassword()));
+		if (!userRepository.existsByUsername(username)) {
+			throw new NotFoundException(1002, "username has not existed");
+		}
+		User user = userRepository.findByUsername(username);
+		Setting userRole = settingRepository.findByValueAndType(roleDTO.getRole(), 1)
+				.orElseThrow(() -> new NotFoundException(404, "Error: Role  Không tồn tại"));
+		if (!userRole.getSetting_value().equals(user.getRole().getSetting_value())) {
+			if (user.getRole().getSetting_value().equals("ROLE_EXPERT")) {
+				Expert expert = expertRepository.findByUser(user).orElse(null);
+				if (expert != null) {
+					expertService.delete(expert.getId());
+				}
+			}
+			if (userRole.getSetting_value().equals("ROLE_EXPERT")) {
+				Expert expert = new Expert("", "", false, "", user);
+				expertRepository.save(expert);
+			}
+			user.setRole(userRole);
+			user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
+			userRepository.save(user);
+		}
+	}
 
-        user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
+	@Override
+	public void updateUser(Long id, String username, UserUpdateRequest updateDTO) {
+		if (!userRepository.existsById(id)) {
+			throw new BadRequestException(1302, "Tài khoản không tồn tại");
+		}
 
-        userRepository.save(user);
-    }
+		User user = userRepository.findById(id).get();
 
-    @Override
-    public User getUserDetail(String username) {
-        if(!userRepository.existsByUsername(username)){
-            throw new BadRequestException(1302, "account has not login");
-        }
+		if (username != null) {
+			if (user.getId() != userRepository.findByUsername(username).getId()) {
+				throw new ForbiddenException(403, "Error forbidden!");
+			}
+		}
 
-        return userRepository.findByUsername(username);
-    }
+		if (updateDTO.getUsername() != null) {
+			if (userRepository.existsByUsername(updateDTO.getUsername())) {
+				throw new BadRequestException(1001, "Tên tài khoản đã tồn tại");
+			}
+			user.setUsername(updateDTO.getUsername());
+		}
+		if (updateDTO.getPhoneNumber() != null)
+			user.setPhoneNumber(updateDTO.getPhoneNumber());
+		if (updateDTO.getFullname() != null)
+			user.setFullname(updateDTO.getFullname());
+		if (updateDTO.getPassword() != null) {
+			Authentication authentication = authenticationManager
+					.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), updateDTO.getOldPassword()));
+			if (authentication == null) {
+				throw new BadRequestException(1402, "sai mật khẩu cũ");
+			}
+			if (!updateDTO.getPassword()
+					.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_])[A-Za-z\\d@$!%*?&_]{8,20}$")) {
+				throw new BadRequestException(1101,
+						"Mật khẩu không đúng định dạng! mật khẩu phải có ít nhất 8 kí tự bào gồm chữ thường, chữ hoa và số");
+			}
+			user.setPassword(encoder.encode(updateDTO.getPassword()));
+		}
+		if (updateDTO.getNote() != null)
+			user.setNote(updateDTO.getNote());
+		user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
 
-    @Override
-    public void updateAvatar(String username, MultipartFile file) throws IOException {
-        User user = userRepository.findByUsername(username);
-        String fileName = fileService.storeFile(file);
-        user.setAvatar(fileName);
-        user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
+		userRepository.save(user);
+	}
 
-        userRepository.save(user);
-    }
+	@Override
+	public User getUserDetail(String username) {
+		if (!userRepository.existsByUsername(username)) {
+			throw new BadRequestException(1302, "account has not login");
+		}
 
-    @Override
-    public void updateActive(String username, UpdateActiveUserRequest activeUserDTO) {
-        if(!userRepository.existsByUsername(username)){
-            throw new BadRequestException(1302, "account has not login");
-        }
-        if(!userRepository.existsByUsername(activeUserDTO.getUsername())){
-            throw new NotFoundException(1002, "username has not existed");
-        }
+		return userRepository.findByUsername(username);
+	}
 
-        User user = userRepository.findByUsername(activeUserDTO.getUsername());
-        user.setActive(!activeUserDTO.isStatus());
-        user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
+	@Override
+	public void updateAvatar(String username, MultipartFile file) throws IOException {
+		User user = userRepository.findByUsername(username);
+		String fileName = fileService.storeFile(file);
+		user.setAvatar(fileName);
+		user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
 
-        userRepository.save(user);
-    }
+		userRepository.save(user);
+	}
 
+	@Override
+	public void updateActive(String username, UpdateActiveUserRequest activeUserDTO) {
+		if (!userRepository.existsByUsername(username)) {
+			throw new BadRequestException(1302, "Tài khoản ch được đăng nhập");
+		}
+		if (!userRepository.existsByUsername(activeUserDTO.getUsername())) {
+			throw new NotFoundException(1002, "Tên tài khoản không tồn tại");
+		}
+
+		User user = userRepository.findByUsername(activeUserDTO.getUsername());
+		user.setActive(!activeUserDTO.isStatus());
+		user.setUpdatedDate(new Timestamp(new Date().getTime()).toString());
+
+		userRepository.save(user);
+	}
+
+	@Override
+	public Page<UserPackage> listMyCourses(Pageable pageable) {
+		// System.out.println("Count supporter: " + userRepository.countSupporter());
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String username = auth.getName();
+		User user = userRepository.findByUsername(username);
+
+		return userPackageRepository.findAllByUser(user, pageable);
+	}
+
+	@Override
+	public UserPackage myCourseDetail(Long id) {
+		UserPackage userPackage = null;
+		try {
+			userPackage = userPackageRepository.findById(id).get();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		if (userPackage == null) {
+			throw new NotFoundException(404, "Sản phẩm Không tồn tại");
+		}
+
+		return userPackage;
+	}
+
+	@Override
+	public void activeCourse(String code) {
+		if(code == null || code.length() ==0) {
+			throw new NotFoundException(404, "Vui lòng nhập mã kích hoạt");
+		}
+		OrderPackage orderPackage = null;
+		try {
+			orderPackage = orderPackageRepository.findByActivationKey(code);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		if (orderPackage == null)
+			throw new NotFoundException(404, "Mã kích hoặt không chính xác");
+		if (orderPackage.isActivated())
+			throw new BadRequestException(400, "Mã kích hoạt đã được sử dụng");
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String username = auth.getName();
+		User user = userRepository.findByUsername(username);
+
+		if (orderPackage.get_package() != null) {
+			UserPackage userPackage = new UserPackage();
+			userPackage.setUser(user);
+			userPackage.setAPackage(orderPackage.get_package());
+			userPackage.setOrder(orderPackage.getOrder());
+			userPackage.setValidFrom(new Date());
+			Calendar c = Calendar.getInstance();
+			c.setTime(new Date());
+			c.add(Calendar.MONTH, orderPackage.get_package().getDuration());
+			userPackage.setStatus(true);
+			userPackage.setValidTo(c.getTime());
+			userPackageRepository.save(userPackage);
+		} else {
+			for (ComboPackage element : orderPackage.get_combo().getComboPackages()) {
+				UserPackage userPackage = new UserPackage();
+				userPackage.setUser(user);
+				userPackage.setAPackage(element.get_package());
+				userPackage.setOrder(orderPackage.getOrder());
+				userPackage.setValidFrom(new Date());
+				Calendar c = Calendar.getInstance();
+				c.setTime(new Date());
+				c.add(Calendar.MONTH, element.get_package().getDuration());
+				userPackage.setValidTo(c.getTime());
+				userPackage.setStatus(true);
+				userPackageRepository.save(userPackage);
+			}
+		}
+
+		orderPackage.setActivated(true);
+		orderPackageRepository.save(orderPackage);
+	}
 
 }

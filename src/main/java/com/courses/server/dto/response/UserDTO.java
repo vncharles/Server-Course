@@ -1,16 +1,8 @@
 package com.courses.server.dto.response;
 
-import com.courses.server.entity.ERole;
 import com.courses.server.entity.User;
-import com.courses.server.utils.Utility;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.StreamUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 @Getter
 @Setter
@@ -21,7 +13,8 @@ public class UserDTO {
     private String fullname;
     private String phoneNumber;
     private String avatar;
-    private ERole role;
+    private String role;
+    private String note;
     private boolean active;
 
     public UserDTO() {
@@ -33,19 +26,20 @@ public class UserDTO {
         this.email = user.getEmail() != null ? user.getEmail() : "";
         this.fullname = user.getFullname() != null ? user.getFullname() : "";
         this.phoneNumber = user.getPhoneNumber() != null ? user.getPhoneNumber() : "";
-        this.role = user.getRole().getName();
+        this.role = user.getRole().getSetting_value();
         this.active = user.isActive();
-        this.avatar = "http://localhost:8080/api/account/downloadFile/" + user.getAvatar();
+        this.avatar = user.getAvatar();
     }
 
-    public UserDTO(User user, String domain) {
+    public UserDTO(User user, Boolean flag) {
         this.id = user.getId();
         this.username = user.getUsername();
         this.email = user.getEmail() != null ? user.getEmail() : "";
         this.fullname = user.getFullname() != null ? user.getFullname() : "";
         this.phoneNumber = user.getPhoneNumber() != null ? user.getPhoneNumber() : "";
-        this.role = user.getRole().getName();
+        this.role = user.getRole().getSetting_value();
         this.active = user.isActive();
-        this.avatar = domain + "/api/account/downloadFile/" + user.getAvatar();
+        this.note = user.getNote();
+        this.avatar = user.getAvatar();
     }
 }

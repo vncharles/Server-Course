@@ -2,8 +2,6 @@ package com.courses.server.security.services;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import com.courses.server.entity.ERole;
 import com.courses.server.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -38,10 +36,10 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public static UserDetailsImpl build(User user) {
-        Set<ERole> roles = new HashSet<>();
-        roles.add(user.getRole().getName());
+        Set<String> roles = new HashSet<>();
+        roles.add(user.getRole().getSetting_value());
         List<GrantedAuthority> authorities = roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.name()))
+                .map(role -> new SimpleGrantedAuthority(role))
                 .collect(Collectors.toList());
 
         return new UserDetailsImpl(
@@ -74,10 +72,6 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     @Override

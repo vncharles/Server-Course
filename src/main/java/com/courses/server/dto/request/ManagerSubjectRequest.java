@@ -6,5 +6,5 @@ import lombok.Data;
 public class ManagerSubjectRequest {
     private Long id;
     private boolean status;
-    private String expert;
+    private Long expert;
 }
